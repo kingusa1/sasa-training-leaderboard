@@ -26,7 +26,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       })
       .catch(() => {});
 
-    // Check email connection status
     fetch('/api/auth/connect-email')
       .then((res) => res.json())
       .then((data) => {
@@ -55,9 +54,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     .slice(0, 2) || '??';
 
   return (
-    <div className="min-h-screen bg-navy-900">
+    <div className="min-h-screen bg-cream-200">
       {/* Top Nav */}
-      <nav className="bg-navy-800 border-b border-navy-700 sticky top-0 z-50">
+      <nav className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-card">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
@@ -68,7 +67,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 width={100}
                 height={33}
               />
-              <span className="font-heading text-sm font-bold text-gold hidden sm:inline">Training</span>
+              <span className="text-sm font-bold text-navy-500 hidden sm:inline">Training</span>
             </Link>
 
             {/* Desktop Nav */}
@@ -79,8 +78,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   href={item.href}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors relative ${
                     pathname === item.href
-                      ? 'bg-gold/10 text-gold'
-                      : 'text-gray-400 hover:text-white hover:bg-navy-700'
+                      ? 'bg-navy-50 text-navy-500 font-semibold'
+                      : 'text-gray-500 hover:text-navy-700 hover:bg-gray-50'
                   }`}
                 >
                   <span className="mr-1.5">{item.icon}</span>
@@ -98,15 +97,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             {/* User Menu */}
             <div className="hidden md:flex items-center gap-3">
               <div className="text-right">
-                <p className="text-white text-sm font-medium">{agent?.fullName || 'Loading...'}</p>
-                <p className="text-gray-500 text-xs">{agent?.email || ''}</p>
+                <p className="text-navy-700 text-sm font-medium">{agent?.fullName || 'Loading...'}</p>
+                <p className="text-gray-400 text-xs">{agent?.email || ''}</p>
               </div>
-              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gold-dark to-gold flex items-center justify-center">
-                <span className="text-navy-900 text-xs font-bold">{initials}</span>
+              <div className="w-9 h-9 rounded-full bg-navy-500 flex items-center justify-center">
+                <span className="text-white text-xs font-bold">{initials}</span>
               </div>
               <button
                 onClick={handleLogout}
-                className="ml-2 text-gray-400 hover:text-red-400 transition-colors text-sm"
+                className="ml-2 text-gray-400 hover:text-red-500 transition-colors text-sm"
               >
                 Logout
               </button>
@@ -115,7 +114,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden text-gray-400 hover:text-white p-2"
+              className="md:hidden text-gray-500 hover:text-navy-700 p-2"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 {mobileMenuOpen ? (
@@ -130,14 +129,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-navy-700 bg-navy-800">
-            <div className="px-4 py-3 border-b border-navy-700 flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gold-dark to-gold flex items-center justify-center">
-                <span className="text-navy-900 text-xs font-bold">{initials}</span>
+          <div className="md:hidden border-t border-gray-200 bg-white">
+            <div className="px-4 py-3 border-b border-gray-100 flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full bg-navy-500 flex items-center justify-center">
+                <span className="text-white text-xs font-bold">{initials}</span>
               </div>
               <div>
-                <p className="text-white text-sm font-medium">{agent?.fullName}</p>
-                <p className="text-gray-500 text-xs">{agent?.email}</p>
+                <p className="text-navy-700 text-sm font-medium">{agent?.fullName}</p>
+                <p className="text-gray-400 text-xs">{agent?.email}</p>
               </div>
             </div>
             {navItems.map((item) => (
@@ -147,23 +146,23 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 onClick={() => setMobileMenuOpen(false)}
                 className={`block px-4 py-3 text-sm font-medium transition-colors ${
                   pathname === item.href
-                    ? 'bg-gold/10 text-gold'
-                    : 'text-gray-400 hover:text-white'
+                    ? 'bg-navy-50 text-navy-500'
+                    : 'text-gray-500 hover:text-navy-700'
                 }`}
               >
                 <span className="mr-2">{item.icon}</span>
                 {item.label}
                 {item.href === '/connect-email' && emailConnected === false && (
-                  <span className="ml-2 text-xs text-red-400">(Setup needed)</span>
+                  <span className="ml-2 text-xs text-red-500">(Setup needed)</span>
                 )}
                 {item.href === '/connect-email' && emailConnected === true && (
-                  <span className="ml-2 text-xs text-green-400">(Connected)</span>
+                  <span className="ml-2 text-xs text-green-500">(Connected)</span>
                 )}
               </Link>
             ))}
             <button
               onClick={handleLogout}
-              className="w-full text-left px-4 py-3 text-sm text-red-400 hover:bg-navy-700 transition-colors"
+              className="w-full text-left px-4 py-3 text-sm text-red-500 hover:bg-gray-50 transition-colors"
             >
               🚪 Logout
             </button>
@@ -173,14 +172,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Email not connected banner */}
       {emailConnected === false && pathname !== '/connect-email' && (
-        <div className="bg-amber-500/10 border-b border-amber-500/30">
+        <div className="bg-amber-50 border-b border-amber-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
-            <p className="text-amber-400 text-sm">
+            <p className="text-amber-700 text-sm">
               📧 <strong>Email not connected.</strong> Connect your SASA email to send automated emails to leads.
             </p>
             <Link
               href="/connect-email"
-              className="bg-amber-500 text-navy-900 px-4 py-1.5 rounded-lg text-sm font-semibold hover:bg-amber-400 transition-colors whitespace-nowrap ml-4"
+              className="bg-navy-500 text-white px-4 py-1.5 rounded-lg text-sm font-semibold hover:bg-navy-600 transition-colors whitespace-nowrap ml-4"
             >
               Connect Now
             </Link>

@@ -2,23 +2,70 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  scroll-behavior: smooth;
+}
 
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: #f0ede8;
+  color: #1a1a1a;
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
 }
 ::-webkit-scrollbar-track {
-  background: #0A1628;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1B3760;
-  border-radius: 3px;
+  background: #002E59;
+  border-radius: 4px;
 }
-::-webkit-scrollbar-thumb:hover {
-  background: #C9A227;
+
+/* Animations */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 46, 89, 0.4); }
+  50% { box-shadow: 0 0 20px 8px rgba(0, 46, 89, 0.15); }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.5s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Medal colors */
+.medal-gold { color: #FFD700; }
+.medal-silver { color: #C0C0C0; }
+.medal-bronze { color: #CD7F32; }
+
+/* Hide scrollbar for filter tabs */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }

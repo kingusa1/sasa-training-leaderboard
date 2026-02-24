@@ -116,8 +116,8 @@ export default function DashboardPage() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-gold/30 border-t-gold rounded-full animate-spin mx-auto" />
-          <p className="text-gray-400 mt-4">Loading leaderboard...</p>
+          <div className="w-12 h-12 border-4 border-navy-200 border-t-navy-500 rounded-full animate-spin mx-auto" />
+          <p className="text-gray-500 mt-4">Loading leaderboard...</p>
         </div>
       </div>
     );
@@ -127,23 +127,23 @@ export default function DashboardPage() {
     <div className="space-y-6">
       {/* Your Stats Card */}
       {agent && (
-        <div className="bg-gradient-to-r from-navy-800 to-navy-700 rounded-2xl p-6 border border-navy-600">
-          <h2 className="font-heading text-lg font-semibold text-white mb-4">Your Performance</h2>
+        <div className="bg-white rounded-2xl p-6 shadow-card border border-gray-100">
+          <h2 className="text-lg font-semibold text-navy-700 mb-4">Your Performance</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div className="text-center">
-              <p className="text-2xl font-bold text-gold">{myRank > 0 ? `#${myRank}` : '-'}</p>
+              <p className="text-2xl font-bold text-navy-500">{myRank > 0 ? `#${myRank}` : '-'}</p>
               <p className="text-gray-400 text-xs mt-1">Rank</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-bold text-white">{myStats?.totalLeads || 0}</p>
+              <p className="text-2xl font-bold text-navy-700">{myStats?.totalLeads || 0}</p>
               <p className="text-gray-400 text-xs mt-1">Total Leads</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-bold text-green-400">{myStats?.paymentReceived || 0}</p>
+              <p className="text-2xl font-bold text-green-600">{myStats?.paymentReceived || 0}</p>
               <p className="text-gray-400 text-xs mt-1">Payments</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-bold text-gold">AED {(myStats?.revenue || 0).toLocaleString()}</p>
+              <p className="text-2xl font-bold text-accent-teal">AED {(myStats?.revenue || 0).toLocaleString()}</p>
               <p className="text-gray-400 text-xs mt-1">Revenue</p>
             </div>
           </div>
@@ -158,8 +158,8 @@ export default function DashboardPage() {
             onClick={() => setTimePeriod(period)}
             className={`py-2 px-3 rounded-lg text-xs sm:text-sm font-medium transition-all ${
               timePeriod === period
-                ? 'bg-gold text-navy-900 shadow-lg shadow-gold/20'
-                : 'bg-navy-800 text-gray-400 hover:bg-navy-700 border border-navy-700'
+                ? 'bg-navy-500 text-white shadow-navy'
+                : 'bg-white text-gray-500 hover:bg-gray-50 border border-gray-200'
             }`}
           >
             {TIME_LABELS[period]}
@@ -173,8 +173,8 @@ export default function DashboardPage() {
           onClick={() => setActiveTab('rankings')}
           className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-all ${
             activeTab === 'rankings'
-              ? 'bg-gold text-navy-900'
-              : 'bg-navy-800 text-gray-400 border border-navy-700'
+              ? 'bg-navy-500 text-white shadow-navy'
+              : 'bg-white text-gray-500 border border-gray-200'
           }`}
         >
           🏆 Rankings
@@ -183,8 +183,8 @@ export default function DashboardPage() {
           onClick={() => setActiveTab('activity')}
           className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-all ${
             activeTab === 'activity'
-              ? 'bg-blue-500 text-white'
-              : 'bg-navy-800 text-gray-400 border border-navy-700'
+              ? 'bg-accent-teal text-white'
+              : 'bg-white text-gray-500 border border-gray-200'
           }`}
         >
           📋 Recent Activity
@@ -199,31 +199,31 @@ export default function DashboardPage() {
               {/* 2nd Place */}
               <div className="text-center flex-1 max-w-[120px]">
                 <div className="w-14 h-14 mx-auto rounded-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center mb-2 ring-2 ring-gray-400">
-                  <span className="text-navy-900 text-sm font-bold">
+                  <span className="text-white text-sm font-bold">
                     {filtered[1].fullName.split(' ').map((n) => n[0]).join('').slice(0, 2)}
                   </span>
                 </div>
-                <div className="bg-navy-800 rounded-t-xl pt-3 pb-6 border border-navy-700 border-b-0">
-                  <span className="text-gray-300 text-2xl">🥈</span>
-                  <p className="text-white text-xs font-semibold mt-1 truncate px-2">{filtered[1].fullName}</p>
-                  <p className="text-gold text-xs">AED {filtered[1].revenue.toLocaleString()}</p>
+                <div className="bg-white rounded-t-xl pt-3 pb-6 border border-gray-200 border-b-0 shadow-card">
+                  <span className="text-gray-400 text-2xl">🥈</span>
+                  <p className="text-navy-700 text-xs font-semibold mt-1 truncate px-2">{filtered[1].fullName}</p>
+                  <p className="text-accent-teal text-xs font-medium">AED {filtered[1].revenue.toLocaleString()}</p>
                 </div>
-                <div className="bg-gray-400/20 h-16 rounded-b-lg" />
+                <div className="bg-gray-200 h-16 rounded-b-lg" />
               </div>
 
               {/* 1st Place */}
               <div className="text-center flex-1 max-w-[140px]">
-                <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-gold-dark to-gold flex items-center justify-center mb-2 ring-3 ring-gold shadow-lg shadow-gold/30">
-                  <span className="text-navy-900 text-sm font-bold">
+                <div className="w-16 h-16 mx-auto rounded-full bg-navy-500 flex items-center justify-center mb-2 ring-3 ring-navy-400 shadow-navy">
+                  <span className="text-white text-sm font-bold">
                     {filtered[0].fullName.split(' ').map((n) => n[0]).join('').slice(0, 2)}
                   </span>
                 </div>
-                <div className="bg-navy-800 rounded-t-xl pt-3 pb-6 border border-gold/30 border-b-0">
+                <div className="bg-white rounded-t-xl pt-3 pb-6 border border-navy-100 border-b-0 shadow-card">
                   <span className="text-3xl">👑</span>
-                  <p className="text-white text-sm font-bold mt-1 truncate px-2">{filtered[0].fullName}</p>
-                  <p className="text-gold text-sm font-semibold">AED {filtered[0].revenue.toLocaleString()}</p>
+                  <p className="text-navy-700 text-sm font-bold mt-1 truncate px-2">{filtered[0].fullName}</p>
+                  <p className="text-navy-500 text-sm font-semibold">AED {filtered[0].revenue.toLocaleString()}</p>
                 </div>
-                <div className="bg-gold/20 h-24 rounded-b-lg" />
+                <div className="bg-navy-100 h-24 rounded-b-lg" />
               </div>
 
               {/* 3rd Place */}
@@ -233,28 +233,28 @@ export default function DashboardPage() {
                     {filtered[2].fullName.split(' ').map((n) => n[0]).join('').slice(0, 2)}
                   </span>
                 </div>
-                <div className="bg-navy-800 rounded-t-xl pt-3 pb-6 border border-navy-700 border-b-0">
+                <div className="bg-white rounded-t-xl pt-3 pb-6 border border-gray-200 border-b-0 shadow-card">
                   <span className="text-amber-600 text-2xl">🥉</span>
-                  <p className="text-white text-xs font-semibold mt-1 truncate px-2">{filtered[2].fullName}</p>
-                  <p className="text-gold text-xs">AED {filtered[2].revenue.toLocaleString()}</p>
+                  <p className="text-navy-700 text-xs font-semibold mt-1 truncate px-2">{filtered[2].fullName}</p>
+                  <p className="text-accent-teal text-xs font-medium">AED {filtered[2].revenue.toLocaleString()}</p>
                 </div>
-                <div className="bg-amber-600/20 h-10 rounded-b-lg" />
+                <div className="bg-amber-100 h-10 rounded-b-lg" />
               </div>
             </div>
           )}
 
           {/* Rankings Table */}
-          <div className="bg-navy-800 rounded-2xl border border-navy-700 overflow-hidden">
+          <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-card">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-navy-700">
-                    <th className="text-left text-gray-400 text-xs font-medium px-4 py-3">#</th>
-                    <th className="text-left text-gray-400 text-xs font-medium px-4 py-3">Agent</th>
-                    <th className="text-center text-gray-400 text-xs font-medium px-4 py-3">Leads</th>
-                    <th className="text-center text-gray-400 text-xs font-medium px-4 py-3">Meetings</th>
-                    <th className="text-center text-gray-400 text-xs font-medium px-4 py-3">Paid</th>
-                    <th className="text-right text-gray-400 text-xs font-medium px-4 py-3">Revenue</th>
+                  <tr className="border-b border-gray-200 bg-cream-100">
+                    <th className="text-left text-gray-500 text-xs font-medium px-4 py-3">#</th>
+                    <th className="text-left text-gray-500 text-xs font-medium px-4 py-3">Agent</th>
+                    <th className="text-center text-gray-500 text-xs font-medium px-4 py-3">Leads</th>
+                    <th className="text-center text-gray-500 text-xs font-medium px-4 py-3">Meetings</th>
+                    <th className="text-center text-gray-500 text-xs font-medium px-4 py-3">Paid</th>
+                    <th className="text-right text-gray-500 text-xs font-medium px-4 py-3">Revenue</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -263,12 +263,12 @@ export default function DashboardPage() {
                     return (
                       <tr
                         key={a.agentId}
-                        className={`border-b border-navy-700/50 ${
-                          isMe ? 'bg-gold/5' : 'hover:bg-navy-700/30'
+                        className={`border-b border-gray-100 ${
+                          isMe ? 'bg-navy-50' : 'hover:bg-cream-50'
                         } transition-colors`}
                       >
                         <td className="px-4 py-3">
-                          <span className={`text-sm font-bold ${idx < 3 ? 'text-gold' : 'text-gray-500'}`}>
+                          <span className={`text-sm font-bold ${idx < 3 ? 'text-navy-500' : 'text-gray-400'}`}>
                             {idx + 1}
                           </span>
                         </td>
@@ -276,23 +276,23 @@ export default function DashboardPage() {
                           <div className="flex items-center gap-3">
                             <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
                               isMe
-                                ? 'bg-gradient-to-br from-gold-dark to-gold text-navy-900'
-                                : 'bg-navy-600 text-gray-300'
+                                ? 'bg-navy-500 text-white'
+                                : 'bg-navy-50 text-navy-500'
                             }`}>
                               {a.fullName.split(' ').map((n) => n[0]).join('').slice(0, 2)}
                             </div>
                             <div>
-                              <p className={`text-sm font-medium ${isMe ? 'text-gold' : 'text-white'}`}>
+                              <p className={`text-sm font-medium ${isMe ? 'text-navy-500' : 'text-navy-700'}`}>
                                 {a.fullName}
-                                {isMe && <span className="ml-1.5 text-xs text-gold/70">(You)</span>}
+                                {isMe && <span className="ml-1.5 text-xs text-navy-400">(You)</span>}
                               </p>
                             </div>
                           </div>
                         </td>
-                        <td className="px-4 py-3 text-center text-white text-sm">{a.totalLeads}</td>
-                        <td className="px-4 py-3 text-center text-white text-sm">{a.meetingsDone}</td>
-                        <td className="px-4 py-3 text-center text-green-400 text-sm">{a.paymentReceived}</td>
-                        <td className="px-4 py-3 text-right text-gold font-semibold text-sm">
+                        <td className="px-4 py-3 text-center text-navy-700 text-sm">{a.totalLeads}</td>
+                        <td className="px-4 py-3 text-center text-navy-700 text-sm">{a.meetingsDone}</td>
+                        <td className="px-4 py-3 text-center text-green-600 text-sm font-medium">{a.paymentReceived}</td>
+                        <td className="px-4 py-3 text-right text-navy-500 font-semibold text-sm">
                           AED {a.revenue.toLocaleString()}
                         </td>
                       </tr>
@@ -300,7 +300,7 @@ export default function DashboardPage() {
                   })}
                   {filtered.length === 0 && (
                     <tr>
-                      <td colSpan={6} className="text-center text-gray-500 py-8">
+                      <td colSpan={6} className="text-center text-gray-400 py-8">
                         No data for this time period
                       </td>
                     </tr>
@@ -314,7 +314,7 @@ export default function DashboardPage() {
         /* Activity Feed */
         <div className="space-y-3">
           {recentLeads.length === 0 ? (
-            <div className="text-center text-gray-500 py-12 bg-navy-800 rounded-2xl border border-navy-700">
+            <div className="text-center text-gray-400 py-12 bg-white rounded-2xl border border-gray-200 shadow-card">
               No recent activity
             </div>
           ) : (
@@ -324,27 +324,27 @@ export default function DashboardPage() {
               return (
                 <div
                   key={`${lead.timestamp}-${idx}`}
-                  className="bg-navy-800 rounded-xl p-4 border border-navy-700 hover:border-navy-600 transition-colors"
+                  className="bg-white rounded-xl p-4 border border-gray-200 hover:shadow-card-hover transition-shadow shadow-card"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-navy-600 flex items-center justify-center">
-                        <span className="text-gray-300 text-xs font-bold">
+                      <div className="w-10 h-10 rounded-full bg-navy-50 flex items-center justify-center">
+                        <span className="text-navy-500 text-xs font-bold">
                           {lead.agentName.split(' ').map((n) => n[0]).join('').slice(0, 2)}
                         </span>
                       </div>
                       <div>
-                        <p className="text-white text-sm font-medium">{lead.agentName}</p>
+                        <p className="text-navy-700 text-sm font-medium">{lead.agentName}</p>
                         <p className="text-gray-400 text-xs">
-                          New lead: <span className="text-gray-300">{clientName}</span>
+                          New lead: <span className="text-gray-600">{clientName}</span>
                         </p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <span className="text-xs bg-navy-600 text-gray-300 px-2 py-1 rounded-full">
+                      <span className="text-xs bg-navy-50 text-navy-500 px-2 py-1 rounded-full font-medium">
                         {pkg?.name || lead.package}
                       </span>
-                      <p className="text-gray-500 text-xs mt-1">
+                      <p className="text-gray-400 text-xs mt-1">
                         {new Date(lead.timestamp).toLocaleDateString()}
                       </p>
                     </div>
@@ -352,10 +352,10 @@ export default function DashboardPage() {
                   {(lead.meetingDone || lead.paymentReceived) && (
                     <div className="flex gap-2 mt-2 ml-13">
                       {lead.meetingDone && (
-                        <span className="text-xs bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded-full">Meeting Done</span>
+                        <span className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full">Meeting Done</span>
                       )}
                       {lead.paymentReceived && (
-                        <span className="text-xs bg-green-500/10 text-green-400 px-2 py-0.5 rounded-full">Paid</span>
+                        <span className="text-xs bg-green-50 text-green-600 px-2 py-0.5 rounded-full">Paid</span>
                       )}
                     </div>
                   )}

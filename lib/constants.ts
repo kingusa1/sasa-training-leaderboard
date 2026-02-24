@@ -68,7 +68,7 @@ export const SMTP_CONFIG = {
   secure: true, // SSL
 } as const;
 
-// Training course packages (from sasa-worldwide.com/training)
+// Training course packages (from sasa-worldwide.com/training - single source of truth)
 export const PACKAGES: Package[] = [
   {
     id: 'starter',
@@ -76,12 +76,15 @@ export const PACKAGES: Package[] = [
     fullName: 'Sales Certification + 2-Day On-Site Training',
     price: 1000,
     currency: 'AED',
-    description: 'Get instant lifetime access with 2 days of practical, hands-on on-site training.',
+    description: 'Instant course access with 2 days of practical, hands-on on-site training covering the core methodology.',
     features: [
       'Complete 4-Foundation Sales Mastery System',
       '2 days of on-site hands-on training',
+      'Law of Averages — The Mathematics',
+      '5-Step Sales Blueprint — The Structure',
+      '6 Impulse Factors — The Psychology',
+      '8 Successful Working Habits — The Discipline',
       'Lifetime access to all course materials',
-      'Certificate upon completion',
     ],
     enrollUrl: 'https://sasa-worldwide.app.clientclub.net/courses/offers/bb29ead7-f9a0-42ad-b07f-481ee4a97cfb',
   },
@@ -91,27 +94,33 @@ export const PACKAGES: Package[] = [
     fullName: 'Full On-Site Certification Program',
     price: 5000,
     currency: 'AED',
-    description: 'Our most popular fully immersive on-site program. Train every day until you\'re certified.',
+    description: 'Our most popular program — daily face-to-face instruction with no time limits until complete mastery.',
     features: [
-      'Daily on-site training until certified',
+      'Everything in Starter Package',
+      'Daily on-site training until full certification',
       'Face-to-face with SASA-certified trainers',
-      'Real-world sales with real customers',
-      'No fixed end date — train until you master it',
+      'Real-world sales experience with SASA partners',
+      'Live sales conversations with real customers',
+      'Not time-limited — train every day until you pass',
+      'No fixed end date — you train until you master it',
     ],
     enrollUrl: 'https://sasa-worldwide.app.clientclub.net/courses/offers/b3a7c0d9-d9ac-4632-96ed-5158286cba1e',
   },
   {
-    id: 'corporate',
-    name: 'Corporate',
+    id: 'enterprise',
+    name: 'Enterprise',
     fullName: 'Corporate Sales Training Program',
     price: 0,
     currency: 'AED',
-    description: 'Custom-tailored training for your entire sales team.',
+    description: 'Custom-tailored training for your entire sales team with industry-specific adaptation.',
     features: [
-      'Custom curriculum for your team',
-      'On-site at your location or SASA offices',
+      'Complete 4-Foundation System for your team',
+      'Customized training schedule and curriculum',
+      'On-site training at your location or SASA offices',
       'Dedicated SASA-certified corporate trainer',
       'Team performance tracking and reporting',
+      'Custom sales playbook for your industry',
+      'Post-training support and follow-up sessions',
     ],
     enrollUrl: null,
   },

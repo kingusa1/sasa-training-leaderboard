@@ -35,7 +35,7 @@ export default function QRCodePage() {
       width: 400,
       margin: 2,
       color: {
-        dark: '#0A1628',
+        dark: '#002E59',
         light: '#FFFFFF',
       },
     }).then(setQrDataUrl);
@@ -46,7 +46,7 @@ export default function QRCodePage() {
         width: 800,
         margin: 2,
         color: {
-          dark: '#0A1628',
+          dark: '#002E59',
           light: '#FFFFFF',
         },
       });
@@ -73,8 +73,8 @@ export default function QRCodePage() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-gold/30 border-t-gold rounded-full animate-spin mx-auto" />
-          <p className="text-gray-400 mt-4">Loading...</p>
+          <div className="w-12 h-12 border-4 border-navy-200 border-t-navy-500 rounded-full animate-spin mx-auto" />
+          <p className="text-gray-500 mt-4">Loading...</p>
         </div>
       </div>
     );
@@ -82,13 +82,13 @@ export default function QRCodePage() {
 
   return (
     <div className="max-w-md mx-auto space-y-6">
-      <h1 className="font-heading text-2xl font-bold text-white text-center">Your QR Code</h1>
-      <p className="text-gray-400 text-center text-sm">
+      <h1 className="text-2xl font-bold text-navy-700 text-center">Your QR Code</h1>
+      <p className="text-gray-500 text-center text-sm">
         Share this QR code with potential clients. When they scan it, they&apos;ll see your personalized sign-up form.
       </p>
 
       {/* QR Code Display */}
-      <div className="bg-white rounded-2xl p-6 shadow-xl">
+      <div className="bg-white rounded-2xl p-6 shadow-card border border-gray-100">
         <div className="text-center">
           {qrDataUrl && (
             // eslint-disable-next-line @next/next/no-img-element
@@ -98,8 +98,8 @@ export default function QRCodePage() {
               className="w-64 h-64 mx-auto"
             />
           )}
-          <p className="text-navy-900 font-heading font-semibold mt-3">{agent.fullName}</p>
-          <p className="text-gray-500 text-xs mt-1">SASA Training Consultant</p>
+          <p className="text-navy-700 font-semibold mt-3">{agent.fullName}</p>
+          <p className="text-gray-400 text-xs mt-1">SASA Training Consultant</p>
         </div>
       </div>
 
@@ -107,21 +107,21 @@ export default function QRCodePage() {
       <canvas ref={canvasRef} className="hidden" />
 
       {/* Link Display */}
-      <div className="bg-navy-800 rounded-xl p-4 border border-navy-700">
-        <label className="text-gray-400 text-xs font-medium">Your Personal Link</label>
+      <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-card">
+        <label className="text-gray-500 text-xs font-medium">Your Personal Link</label>
         <div className="flex items-center gap-2 mt-2">
           <input
             type="text"
             value={formUrl}
             readOnly
-            className="flex-1 bg-navy-900 border border-navy-600 rounded-lg px-3 py-2 text-white text-sm truncate"
+            className="flex-1 bg-cream-100 border border-gray-200 rounded-lg px-3 py-2 text-navy-700 text-sm truncate"
           />
           <button
             onClick={handleCopyLink}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
               copied
                 ? 'bg-green-500 text-white'
-                : 'bg-gold text-navy-900 hover:opacity-90'
+                : 'bg-navy-500 text-white hover:bg-navy-600'
             }`}
           >
             {copied ? 'Copied!' : 'Copy'}
@@ -133,7 +133,7 @@ export default function QRCodePage() {
       <div className="grid grid-cols-2 gap-3">
         <button
           onClick={handleDownload}
-          className="bg-navy-800 border border-navy-700 text-white py-3 rounded-xl font-medium hover:bg-navy-700 transition-colors"
+          className="bg-white border border-gray-200 text-navy-700 py-3 rounded-xl font-medium hover:bg-gray-50 transition-colors shadow-card"
         >
           📥 Download PNG
         </button>
@@ -149,16 +149,16 @@ export default function QRCodePage() {
               handleCopyLink();
             }
           }}
-          className="bg-gold text-navy-900 py-3 rounded-xl font-semibold hover:opacity-90 transition-opacity"
+          className="bg-navy-500 text-white py-3 rounded-xl font-semibold hover:bg-navy-600 transition-colors shadow-navy"
         >
           📤 Share Link
         </button>
       </div>
 
       {/* Instructions */}
-      <div className="bg-navy-800 rounded-xl p-4 border border-navy-700">
-        <h3 className="text-white font-semibold text-sm mb-2">How to use</h3>
-        <ol className="text-gray-400 text-sm space-y-2 list-decimal list-inside">
+      <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-card">
+        <h3 className="text-navy-700 font-semibold text-sm mb-2">How to use</h3>
+        <ol className="text-gray-500 text-sm space-y-2 list-decimal list-inside">
           <li>Download or screenshot the QR code</li>
           <li>Share it with potential clients (print, WhatsApp, social media)</li>
           <li>When clients scan it, they&apos;ll fill out a form with their info</li>

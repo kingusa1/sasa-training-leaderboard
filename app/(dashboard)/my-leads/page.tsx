@@ -92,8 +92,8 @@ export default function MyLeadsPage() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-gold/30 border-t-gold rounded-full animate-spin mx-auto" />
-          <p className="text-gray-400 mt-4">Loading your leads...</p>
+          <div className="w-12 h-12 border-4 border-navy-200 border-t-navy-500 rounded-full animate-spin mx-auto" />
+          <p className="text-gray-500 mt-4">Loading your leads...</p>
         </div>
       </div>
     );
@@ -101,61 +101,61 @@ export default function MyLeadsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="font-heading text-2xl font-bold text-white">My Leads</h1>
+      <h1 className="text-2xl font-bold text-navy-700">My Leads</h1>
 
       {/* Stats Summary */}
       <div className="grid grid-cols-4 gap-3">
         <button
           onClick={() => setFilter('all')}
-          className={`p-3 rounded-xl text-center transition-all ${
+          className={`p-3 rounded-xl text-center transition-all shadow-card ${
             filter === 'all'
-              ? 'bg-gold/10 border-gold border'
-              : 'bg-navy-800 border border-navy-700'
+              ? 'bg-navy-500 border-navy-500 border text-white'
+              : 'bg-white border border-gray-200'
           }`}
         >
-          <p className="text-xl font-bold text-white">{stats.total}</p>
-          <p className="text-xs text-gray-400">Total</p>
+          <p className={`text-xl font-bold ${filter === 'all' ? 'text-white' : 'text-navy-700'}`}>{stats.total}</p>
+          <p className={`text-xs ${filter === 'all' ? 'text-navy-100' : 'text-gray-400'}`}>Total</p>
         </button>
         <button
           onClick={() => setFilter('new')}
-          className={`p-3 rounded-xl text-center transition-all ${
+          className={`p-3 rounded-xl text-center transition-all shadow-card ${
             filter === 'new'
-              ? 'bg-blue-500/10 border-blue-500 border'
-              : 'bg-navy-800 border border-navy-700'
+              ? 'bg-blue-500 border-blue-500 border text-white'
+              : 'bg-white border border-gray-200'
           }`}
         >
-          <p className="text-xl font-bold text-blue-400">{stats.new}</p>
-          <p className="text-xs text-gray-400">New</p>
+          <p className={`text-xl font-bold ${filter === 'new' ? 'text-white' : 'text-blue-500'}`}>{stats.new}</p>
+          <p className={`text-xs ${filter === 'new' ? 'text-blue-100' : 'text-gray-400'}`}>New</p>
         </button>
         <button
           onClick={() => setFilter('meeting_done')}
-          className={`p-3 rounded-xl text-center transition-all ${
+          className={`p-3 rounded-xl text-center transition-all shadow-card ${
             filter === 'meeting_done'
-              ? 'bg-orange-500/10 border-orange-500 border'
-              : 'bg-navy-800 border border-navy-700'
+              ? 'bg-orange-500 border-orange-500 border text-white'
+              : 'bg-white border border-gray-200'
           }`}
         >
-          <p className="text-xl font-bold text-orange-400">{stats.meetingDone}</p>
-          <p className="text-xs text-gray-400">Meeting</p>
+          <p className={`text-xl font-bold ${filter === 'meeting_done' ? 'text-white' : 'text-orange-500'}`}>{stats.meetingDone}</p>
+          <p className={`text-xs ${filter === 'meeting_done' ? 'text-orange-100' : 'text-gray-400'}`}>Meeting</p>
         </button>
         <button
           onClick={() => setFilter('paid')}
-          className={`p-3 rounded-xl text-center transition-all ${
+          className={`p-3 rounded-xl text-center transition-all shadow-card ${
             filter === 'paid'
-              ? 'bg-green-500/10 border-green-500 border'
-              : 'bg-navy-800 border border-navy-700'
+              ? 'bg-green-500 border-green-500 border text-white'
+              : 'bg-white border border-gray-200'
           }`}
         >
-          <p className="text-xl font-bold text-green-400">{stats.paid}</p>
-          <p className="text-xs text-gray-400">Paid</p>
+          <p className={`text-xl font-bold ${filter === 'paid' ? 'text-white' : 'text-green-500'}`}>{stats.paid}</p>
+          <p className={`text-xs ${filter === 'paid' ? 'text-green-100' : 'text-gray-400'}`}>Paid</p>
         </button>
       </div>
 
       {/* Leads List */}
       {filteredLeads.length === 0 ? (
-        <div className="text-center text-gray-500 py-12 bg-navy-800 rounded-2xl border border-navy-700">
+        <div className="text-center text-gray-400 py-12 bg-white rounded-2xl border border-gray-200 shadow-card">
           <p className="text-4xl mb-3">👥</p>
-          <p className="font-medium">No leads yet</p>
+          <p className="font-medium text-navy-700">No leads yet</p>
           <p className="text-sm mt-1">Share your QR code to start getting leads!</p>
         </div>
       ) : (
@@ -166,27 +166,27 @@ export default function MyLeadsPage() {
             return (
               <div
                 key={lead.rowIndex}
-                className="bg-navy-800 rounded-xl p-4 border border-navy-700"
+                className="bg-white rounded-xl p-4 border border-gray-200 shadow-card"
               >
                 {/* Header */}
                 <div className="flex items-start justify-between mb-3">
                   <div>
-                    <h3 className="text-white font-semibold">{clientName}</h3>
-                    <p className="text-gray-400 text-sm">{lead.clientEmail}</p>
-                    <p className="text-gray-500 text-xs">{lead.clientPhone}</p>
+                    <h3 className="text-navy-700 font-semibold">{clientName}</h3>
+                    <p className="text-gray-500 text-sm">{lead.clientEmail}</p>
+                    <p className="text-gray-400 text-xs">{lead.clientPhone}</p>
                     {lead.companyName && (
-                      <p className="text-gray-500 text-xs mt-0.5">🏢 {lead.companyName}</p>
+                      <p className="text-gray-400 text-xs mt-0.5">🏢 {lead.companyName}</p>
                     )}
                   </div>
                   <div className="text-right">
-                    <span className="text-xs bg-navy-600 text-gray-300 px-2 py-1 rounded-full">
+                    <span className="text-xs bg-navy-50 text-navy-500 px-2 py-1 rounded-full font-medium">
                       {pkg?.name || lead.package}
                     </span>
                     {pkg && pkg.price > 0 && (
-                      <p className="text-gold text-sm font-semibold mt-1">AED {pkg.price.toLocaleString()}</p>
+                      <p className="text-navy-500 text-sm font-semibold mt-1">AED {pkg.price.toLocaleString()}</p>
                     )}
                     {pkg && pkg.price === 0 && (
-                      <p className="text-gold text-sm font-semibold mt-1">Custom</p>
+                      <p className="text-navy-500 text-sm font-semibold mt-1">Custom</p>
                     )}
                   </div>
                 </div>
@@ -194,30 +194,30 @@ export default function MyLeadsPage() {
                 {/* Status Badge */}
                 <div className="mb-3">
                   {lead.paymentReceived ? (
-                    <span className="text-xs bg-green-500/10 text-green-400 px-3 py-1 rounded-full font-medium">
+                    <span className="text-xs bg-green-50 text-green-600 px-3 py-1 rounded-full font-medium">
                       Paid
                     </span>
                   ) : lead.meetingDone ? (
-                    <span className="text-xs bg-orange-500/10 text-orange-400 px-3 py-1 rounded-full font-medium">
+                    <span className="text-xs bg-orange-50 text-orange-600 px-3 py-1 rounded-full font-medium">
                       Meeting Done
                     </span>
                   ) : (
-                    <span className="text-xs bg-blue-500/10 text-blue-400 px-3 py-1 rounded-full font-medium">
+                    <span className="text-xs bg-blue-50 text-blue-600 px-3 py-1 rounded-full font-medium">
                       New Lead
                     </span>
                   )}
-                  <span className="text-gray-500 text-xs ml-2">
+                  <span className="text-gray-400 text-xs ml-2">
                     {new Date(lead.timestamp).toLocaleDateString()}
                   </span>
                   {lead.preferredContact && (
-                    <span className="text-gray-500 text-xs ml-2">
+                    <span className="text-gray-400 text-xs ml-2">
                       Contact via: {lead.preferredContact}
                     </span>
                   )}
                 </div>
 
                 {/* Toggle Switches */}
-                <div className="flex items-center gap-6 pt-3 border-t border-navy-700">
+                <div className="flex items-center gap-6 pt-3 border-t border-gray-100">
                   {/* Meeting Done Toggle */}
                   <label className="flex items-center gap-3 cursor-pointer">
                     <div className="relative">
@@ -230,7 +230,7 @@ export default function MyLeadsPage() {
                       />
                       <div
                         className={`w-11 h-6 rounded-full transition-colors ${
-                          lead.meetingDone ? 'bg-blue-500' : 'bg-navy-600'
+                          lead.meetingDone ? 'bg-blue-500' : 'bg-gray-300'
                         }`}
                       >
                         <div
@@ -240,7 +240,7 @@ export default function MyLeadsPage() {
                         />
                       </div>
                     </div>
-                    <span className="text-sm text-gray-300">Meeting Done</span>
+                    <span className="text-sm text-gray-600">Meeting Done</span>
                   </label>
 
                   {/* Payment Received Toggle */}
@@ -255,7 +255,7 @@ export default function MyLeadsPage() {
                       />
                       <div
                         className={`w-11 h-6 rounded-full transition-colors ${
-                          lead.paymentReceived ? 'bg-green-500' : 'bg-navy-600'
+                          lead.paymentReceived ? 'bg-green-500' : 'bg-gray-300'
                         }`}
                       >
                         <div
@@ -265,7 +265,7 @@ export default function MyLeadsPage() {
                         />
                       </div>
                     </div>
-                    <span className="text-sm text-gray-300">Payment Received</span>
+                    <span className="text-sm text-gray-600">Payment Received</span>
                   </label>
                 </div>
               </div>
