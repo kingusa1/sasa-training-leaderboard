@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -42,7 +43,15 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <h1 className="font-heading text-3xl font-bold text-gold">SASA Training</h1>
+          <Image
+            src="/images/logo/sasa-logo-color.png"
+            alt="SASA Worldwide"
+            width={180}
+            height={60}
+            className="mx-auto mb-3"
+            priority
+          />
+          <h1 className="font-heading text-2xl font-bold text-gold">Training Course Leaderboard</h1>
           <p className="text-gray-400 mt-2 font-body">Agent Login</p>
         </div>
 
@@ -62,7 +71,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-navy-900 border border-navy-600 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-gold transition-colors"
-                placeholder="your@email.com"
+                placeholder="your@sasa-worldwide.com"
                 required
               />
             </div>

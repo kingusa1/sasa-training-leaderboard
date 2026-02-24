@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { findAgentByEmail, createAgent } from '@/lib/sheets';
 import { hashPassword, createToken, setAuthCookie } from '@/lib/auth';
 import { generateAgentId } from '@/lib/utils';
+import { ALLOWED_EMAIL_DOMAIN } from '@/lib/constants';
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,6 +11,15 @@ export async function POST(request: NextRequest) {
     // Validation
     if (!fullName || !email || !phone || !password) {
       return NextResponse.json({ error: 'All fields are required' }, { status: 400 });
+    }
+
+    // Email domain validation
+    const emailDomain = email.toLowerCase().split('@')[1];
+    if (emailDomain !== ALLOWED_EMAIL_DOMAIN) {
+      return NextResponse.json(
+        { error: `Only @${ALLOWED_EMAIL_DOMAIN} email addresses are allowed` },
+        { status: 400 }
+      );
     }
 
     if (password.length < 6) {

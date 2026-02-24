@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface AgentInfo {
   agentId: string;
@@ -34,6 +35,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { href: '/dashboard', label: 'Dashboard', icon: '📊' },
     { href: '/my-leads', label: 'My Leads', icon: '👥' },
     { href: '/qr-code', label: 'QR Code', icon: '📱' },
+    { href: '/connect-email', label: 'Email', icon: '📧' },
   ];
 
   const initials = agent?.fullName
@@ -51,7 +53,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link href="/dashboard" className="flex items-center gap-2">
-              <span className="font-heading text-xl font-bold text-gold">SASA Training</span>
+              <Image
+                src="/images/logo/sasa-logo-color.png"
+                alt="SASA Worldwide"
+                width={100}
+                height={33}
+              />
+              <span className="font-heading text-sm font-bold text-gold hidden sm:inline">Training</span>
             </Link>
 
             {/* Desktop Nav */}

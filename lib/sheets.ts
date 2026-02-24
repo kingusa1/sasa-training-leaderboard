@@ -29,10 +29,9 @@ export async function findAgentByEmail(email: string): Promise<Agent | null> {
   const sheets = getSheets();
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId: SHEET_ID(),
-    range: `'${SHEET_TABS.AGENTS}'!A:F`,
+    range: `'${SHEET_TABS.AGENTS}'!A:H`,
   });
   const rows = res.data.values || [];
-  // Skip header row
   for (let i = 1; i < rows.length; i++) {
     const row = rows[i];
     if (row[AGENT_COLS.EMAIL]?.toLowerCase() === email.toLowerCase()) {
@@ -42,6 +41,8 @@ export async function findAgentByEmail(email: string): Promise<Agent | null> {
         email: row[AGENT_COLS.EMAIL] || '',
         phone: row[AGENT_COLS.PHONE] || '',
         hashedPassword: row[AGENT_COLS.HASHED_PASSWORD] || '',
+        emailPassword: row[AGENT_COLS.EMAIL_PASSWORD] || '',
+        emailConnected: row[AGENT_COLS.EMAIL_CONNECTED]?.toUpperCase() === 'TRUE',
         createdAt: row[AGENT_COLS.CREATED_AT] || '',
       };
     }
@@ -53,7 +54,7 @@ export async function findAgentById(agentId: string): Promise<Agent | null> {
   const sheets = getSheets();
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId: SHEET_ID(),
-    range: `'${SHEET_TABS.AGENTS}'!A:F`,
+    range: `'${SHEET_TABS.AGENTS}'!A:H`,
   });
   const rows = res.data.values || [];
   for (let i = 1; i < rows.length; i++) {
@@ -65,6 +66,8 @@ export async function findAgentById(agentId: string): Promise<Agent | null> {
         email: row[AGENT_COLS.EMAIL] || '',
         phone: row[AGENT_COLS.PHONE] || '',
         hashedPassword: row[AGENT_COLS.HASHED_PASSWORD] || '',
+        emailPassword: row[AGENT_COLS.EMAIL_PASSWORD] || '',
+        emailConnected: row[AGENT_COLS.EMAIL_CONNECTED]?.toUpperCase() === 'TRUE',
         createdAt: row[AGENT_COLS.CREATED_AT] || '',
       };
     }
@@ -72,11 +75,11 @@ export async function findAgentById(agentId: string): Promise<Agent | null> {
   return null;
 }
 
-export async function createAgent(agent: Omit<Agent, 'createdAt'>): Promise<void> {
+export async function createAgent(agent: Omit<Agent, 'createdAt' | 'emailPassword' | 'emailConnected'>): Promise<void> {
   const sheets = getSheets();
   await sheets.spreadsheets.values.append({
     spreadsheetId: SHEET_ID(),
-    range: `'${SHEET_TABS.AGENTS}'!A:F`,
+    range: `'${SHEET_TABS.AGENTS}'!A:H`,
     valueInputOption: 'USER_ENTERED',
     requestBody: {
       values: [[
@@ -85,69 +88,127 @@ export async function createAgent(agent: Omit<Agent, 'createdAt'>): Promise<void
         agent.email,
         agent.phone,
         agent.hashedPassword,
+        '', // EmailPassword - set later via connect-email
+        'FALSE', // EmailConnected
         new Date().toISOString(),
       ]],
     },
   });
 }
 
-// ============ LEAD OPERATIONS ============
-
-export async function getLeadsByAgent(agentId: string): Promise<Lead[]> {
+export async function updateAgentEmailCredentials(
+  email: string,
+  emailPassword: string
+): Promise<void> {
   const sheets = getSheets();
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId: SHEET_ID(),
-    range: `'${SHEET_TABS.LEADS}'!A:J`,
+    range: `'${SHEET_TABS.AGENTS}'!A:H`,
+  });
+  const rows = res.data.values || [];
+  for (let i = 1; i < rows.length; i++) {
+    const row = rows[i];
+    if (row[AGENT_COLS.EMAIL]?.toLowerCase() === email.toLowerCase()) {
+      const rowNumber = i + 1; // 1-indexed
+      // Update EmailPassword (col F) and EmailConnected (col G)
+      await sheets.spreadsheets.values.update({
+        spreadsheetId: SHEET_ID(),
+        range: `'${SHEET_TABS.AGENTS}'!F${rowNumber}:G${rowNumber}`,
+        valueInputOption: 'USER_ENTERED',
+        requestBody: {
+          values: [[emailPassword, 'TRUE']],
+        },
+      });
+      return;
+    }
+  }
+  throw new Error('Agent not found');
+}
+
+// ============ LEAD OPERATIONS ============
+
+export async function getLeadsByAgent(agentEmail: string): Promise<Lead[]> {
+  const sheets = getSheets();
+  const res = await sheets.spreadsheets.values.get({
+    spreadsheetId: SHEET_ID(),
+    range: `'${SHEET_TABS.LEADS}'!A:Q`,
   });
   const rows = res.data.values || [];
   const leads: Lead[] = [];
   for (let i = 1; i < rows.length; i++) {
     const row = rows[i];
-    if (row[LEAD_COLS.AGENT_ID] === agentId) {
+    if (row[LEAD_COLS.AGENT_EMAIL]?.toLowerCase() === agentEmail.toLowerCase()) {
       leads.push({
-        leadId: row[LEAD_COLS.LEAD_ID] || '',
-        agentId: row[LEAD_COLS.AGENT_ID] || '',
+        timestamp: row[LEAD_COLS.TIMESTAMP] || '',
         agentName: row[LEAD_COLS.AGENT_NAME] || '',
-        clientName: row[LEAD_COLS.CLIENT_NAME] || '',
+        agentEmail: row[LEAD_COLS.AGENT_EMAIL] || '',
+        firstName: row[LEAD_COLS.FIRST_NAME] || '',
+        lastName: row[LEAD_COLS.LAST_NAME] || '',
         clientEmail: row[LEAD_COLS.CLIENT_EMAIL] || '',
         clientPhone: row[LEAD_COLS.CLIENT_PHONE] || '',
         package: row[LEAD_COLS.PACKAGE] || '',
-        submittedAt: row[LEAD_COLS.SUBMITTED_AT] || '',
+        companyName: row[LEAD_COLS.COMPANY_NAME] || '',
+        teamSize: row[LEAD_COLS.TEAM_SIZE] || '',
+        preferredContact: row[LEAD_COLS.PREFERRED_CONTACT] || '',
+        bestTime: row[LEAD_COLS.BEST_TIME] || '',
+        notes: row[LEAD_COLS.NOTES] || '',
         meetingDone: row[LEAD_COLS.MEETING_DONE]?.toUpperCase() === 'TRUE',
         paymentReceived: row[LEAD_COLS.PAYMENT_RECEIVED]?.toUpperCase() === 'TRUE',
-        rowIndex: i + 1, // 1-indexed for Sheets API (row 1 = header)
+        status: row[LEAD_COLS.STATUS] || 'New',
+        leadSource: row[LEAD_COLS.LEAD_SOURCE] || '',
+        rowIndex: i + 1,
       });
     }
   }
   return leads.sort((a, b) => {
-    const dateA = new Date(a.submittedAt).getTime() || 0;
-    const dateB = new Date(b.submittedAt).getTime() || 0;
+    const dateA = new Date(a.timestamp).getTime() || 0;
+    const dateB = new Date(b.timestamp).getTime() || 0;
     return dateB - dateA;
   });
 }
 
-export async function createLead(lead: Omit<Lead, 'meetingDone' | 'paymentReceived' | 'rowIndex'>): Promise<void> {
+export async function createLead(lead: {
+  agentName: string;
+  agentEmail: string;
+  firstName: string;
+  lastName: string;
+  clientEmail: string;
+  clientPhone: string;
+  packageId: string;
+  companyName?: string;
+  teamSize?: string;
+  preferredContact?: string;
+  bestTime?: string;
+  notes?: string;
+  leadSource?: string;
+}): Promise<void> {
   const sheets = getSheets();
   await sheets.spreadsheets.values.append({
     spreadsheetId: SHEET_ID(),
-    range: `'${SHEET_TABS.LEADS}'!A:J`,
+    range: `'${SHEET_TABS.LEADS}'!A:Q`,
     valueInputOption: 'USER_ENTERED',
     requestBody: {
       values: [[
-        lead.leadId,
-        lead.agentId,
+        new Date().toISOString(),
         lead.agentName,
-        lead.clientName,
+        lead.agentEmail,
+        lead.firstName,
+        lead.lastName,
         lead.clientEmail,
         lead.clientPhone,
-        lead.package,
-        lead.submittedAt,
-        'FALSE',
-        'FALSE',
+        lead.packageId,
+        lead.companyName || '',
+        lead.teamSize || '',
+        lead.preferredContact || '',
+        lead.bestTime || '',
+        lead.notes || '',
+        'FALSE', // MeetingDone
+        'FALSE', // PaymentReceived
+        'New', // Status
+        lead.leadSource || 'QR Code',
       ]],
     },
   });
-  // Invalidate cache
   cachedLeaderboard = null;
   cacheTimestamp = 0;
 }
@@ -158,7 +219,8 @@ export async function toggleLeadField(
   value: boolean
 ): Promise<void> {
   const sheets = getSheets();
-  const col = field === 'meetingDone' ? 'I' : 'J'; // Column I = MeetingDone, J = PaymentReceived
+  // Column N = MeetingDone (col 14), O = PaymentReceived (col 15)
+  const col = field === 'meetingDone' ? 'N' : 'O';
   await sheets.spreadsheets.values.update({
     spreadsheetId: SHEET_ID(),
     range: `'${SHEET_TABS.LEADS}'!${col}${rowIndex}`,
@@ -167,30 +229,32 @@ export async function toggleLeadField(
       values: [[value ? 'TRUE' : 'FALSE']],
     },
   });
-  // Invalidate cache
   cachedLeaderboard = null;
   cacheTimestamp = 0;
 }
 
 // ============ MEETING REQUEST OPERATIONS ============
 
-export async function createMeetingRequest(meeting: Omit<MeetingRequest, 'createdAt'>): Promise<void> {
+export async function createMeetingRequest(meeting: Omit<MeetingRequest, 'timestamp' | 'status'>): Promise<void> {
   const sheets = getSheets();
   await sheets.spreadsheets.values.append({
     spreadsheetId: SHEET_ID(),
-    range: `'${SHEET_TABS.MEETINGS}'!A:I`,
+    range: `'${SHEET_TABS.MEETINGS}'!A:L`,
     valueInputOption: 'USER_ENTERED',
     requestBody: {
       values: [[
-        meeting.requestId,
-        meeting.leadId,
-        meeting.agentId,
+        new Date().toISOString(),
+        meeting.agentName,
+        meeting.agentEmail,
         meeting.clientName,
         meeting.clientEmail,
+        meeting.clientPhone,
+        meeting.packageInterest,
         meeting.preferredDate,
         meeting.preferredTime,
+        meeting.meetingType,
         meeting.notes,
-        new Date().toISOString(),
+        'Pending',
       ]],
     },
   });
@@ -199,7 +263,6 @@ export async function createMeetingRequest(meeting: Omit<MeetingRequest, 'create
 // ============ LEADERBOARD ============
 
 export async function getLeaderboardData(): Promise<LeaderboardData> {
-  // Check cache
   if (cachedLeaderboard && Date.now() - cacheTimestamp < CACHE_TTL) {
     return cachedLeaderboard;
   }
@@ -207,7 +270,7 @@ export async function getLeaderboardData(): Promise<LeaderboardData> {
   const sheets = getSheets();
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId: SHEET_ID(),
-    range: `'${SHEET_TABS.LEADS}'!A:J`,
+    range: `'${SHEET_TABS.LEADS}'!A:Q`,
   });
   const rows = res.data.values || [];
 
@@ -215,14 +278,16 @@ export async function getLeaderboardData(): Promise<LeaderboardData> {
 
   for (let i = 1; i < rows.length; i++) {
     const row = rows[i];
-    const agentId = row[LEAD_COLS.AGENT_ID] || '';
+    const agentEmail = row[LEAD_COLS.AGENT_EMAIL] || '';
     const agentName = row[LEAD_COLS.AGENT_NAME] || '';
-    if (!agentId) continue;
+    if (!agentEmail) continue;
 
-    if (!agentMap.has(agentId)) {
-      agentMap.set(agentId, {
-        agentId,
+    const key = agentEmail.toLowerCase();
+    if (!agentMap.has(key)) {
+      agentMap.set(key, {
+        agentId: key,
         fullName: agentName,
+        email: agentEmail,
         totalLeads: 0,
         meetingsDone: 0,
         paymentReceived: 0,
@@ -231,7 +296,7 @@ export async function getLeaderboardData(): Promise<LeaderboardData> {
       });
     }
 
-    const stats = agentMap.get(agentId)!;
+    const stats = agentMap.get(key)!;
     const packageId = row[LEAD_COLS.PACKAGE] || '';
     const meetingDone = row[LEAD_COLS.MEETING_DONE]?.toUpperCase() === 'TRUE';
     const paymentReceived = row[LEAD_COLS.PAYMENT_RECEIVED]?.toUpperCase() === 'TRUE';
@@ -245,45 +310,71 @@ export async function getLeaderboardData(): Promise<LeaderboardData> {
     }
 
     stats.leads.push({
-      leadId: row[LEAD_COLS.LEAD_ID] || '',
-      agentId,
+      timestamp: row[LEAD_COLS.TIMESTAMP] || '',
       agentName,
-      clientName: row[LEAD_COLS.CLIENT_NAME] || '',
+      agentEmail,
+      firstName: row[LEAD_COLS.FIRST_NAME] || '',
+      lastName: row[LEAD_COLS.LAST_NAME] || '',
       clientEmail: row[LEAD_COLS.CLIENT_EMAIL] || '',
       clientPhone: row[LEAD_COLS.CLIENT_PHONE] || '',
       package: packageId,
-      submittedAt: row[LEAD_COLS.SUBMITTED_AT] || '',
+      companyName: row[LEAD_COLS.COMPANY_NAME] || '',
+      teamSize: row[LEAD_COLS.TEAM_SIZE] || '',
+      preferredContact: row[LEAD_COLS.PREFERRED_CONTACT] || '',
+      bestTime: row[LEAD_COLS.BEST_TIME] || '',
+      notes: row[LEAD_COLS.NOTES] || '',
       meetingDone,
       paymentReceived,
+      status: row[LEAD_COLS.STATUS] || 'New',
+      leadSource: row[LEAD_COLS.LEAD_SOURCE] || '',
     });
+  }
+
+  // Map agentId from Agent Credentials sheet
+  try {
+    const agentRes = await sheets.spreadsheets.values.get({
+      spreadsheetId: SHEET_ID(),
+      range: `'${SHEET_TABS.AGENTS}'!A:C`,
+    });
+    const agentRows = agentRes.data.values || [];
+    for (let i = 1; i < agentRows.length; i++) {
+      const agentId = agentRows[i][AGENT_COLS.AGENT_ID] || '';
+      const email = (agentRows[i][AGENT_COLS.EMAIL] || '').toLowerCase();
+      if (agentMap.has(email)) {
+        agentMap.get(email)!.agentId = agentId;
+      }
+    }
+  } catch {
+    // If agent lookup fails, keep email as agentId
   }
 
   const leaderboard = Array.from(agentMap.values()).sort(
     (a, b) => b.revenue - a.revenue || b.totalLeads - a.totalLeads
   );
 
-  // Recent leads (last 50)
   const allLeads: Omit<Lead, 'rowIndex'>[] = [];
   for (let i = 1; i < rows.length; i++) {
     const row = rows[i];
-    if (!row[LEAD_COLS.AGENT_ID]) continue;
+    if (!row[LEAD_COLS.AGENT_EMAIL]) continue;
     allLeads.push({
-      leadId: row[LEAD_COLS.LEAD_ID] || '',
-      agentId: row[LEAD_COLS.AGENT_ID] || '',
+      timestamp: row[LEAD_COLS.TIMESTAMP] || '',
       agentName: row[LEAD_COLS.AGENT_NAME] || '',
-      clientName: row[LEAD_COLS.CLIENT_NAME] || '',
+      agentEmail: row[LEAD_COLS.AGENT_EMAIL] || '',
+      firstName: row[LEAD_COLS.FIRST_NAME] || '',
+      lastName: row[LEAD_COLS.LAST_NAME] || '',
       clientEmail: row[LEAD_COLS.CLIENT_EMAIL] || '',
       clientPhone: row[LEAD_COLS.CLIENT_PHONE] || '',
       package: row[LEAD_COLS.PACKAGE] || '',
-      submittedAt: row[LEAD_COLS.SUBMITTED_AT] || '',
       meetingDone: row[LEAD_COLS.MEETING_DONE]?.toUpperCase() === 'TRUE',
       paymentReceived: row[LEAD_COLS.PAYMENT_RECEIVED]?.toUpperCase() === 'TRUE',
+      status: row[LEAD_COLS.STATUS] || 'New',
+      leadSource: row[LEAD_COLS.LEAD_SOURCE] || '',
     });
   }
 
   allLeads.sort((a, b) => {
-    const dateA = new Date(a.submittedAt).getTime() || 0;
-    const dateB = new Date(b.submittedAt).getTime() || 0;
+    const dateA = new Date(a.timestamp).getTime() || 0;
+    const dateB = new Date(b.timestamp).getTime() || 0;
     return dateB - dateA;
   });
 
@@ -292,7 +383,6 @@ export async function getLeaderboardData(): Promise<LeaderboardData> {
     recentLeads: allLeads.slice(0, 50),
   };
 
-  // Update cache
   cachedLeaderboard = data;
   cacheTimestamp = Date.now();
 

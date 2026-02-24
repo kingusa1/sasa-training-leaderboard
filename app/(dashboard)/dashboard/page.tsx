@@ -52,7 +52,7 @@ function filterByTimePeriod(
 
   return stats
     .map((agent) => {
-      const filteredLeads = agent.leads.filter((l) => isInTimePeriod(l.submittedAt, period));
+      const filteredLeads = agent.leads.filter((l) => isInTimePeriod(l.timestamp, period));
       let revenue = 0;
       let meetingsDone = 0;
       let paymentReceived = 0;
@@ -109,8 +109,8 @@ export default function DashboardPage() {
   }, [fetchData]);
 
   const filtered = filterByTimePeriod(leaderboard, timePeriod);
-  const myStats = agent ? filtered.find((a) => a.agentId === agent.agentId) : null;
-  const myRank = agent ? filtered.findIndex((a) => a.agentId === agent.agentId) + 1 : 0;
+  const myStats = agent ? filtered.find((a) => a.agentId === agent.agentId || a.email === agent.email) : null;
+  const myRank = agent ? filtered.findIndex((a) => a.agentId === agent.agentId || a.email === agent.email) + 1 : 0;
 
   if (loading) {
     return (
@@ -143,7 +143,7 @@ export default function DashboardPage() {
               <p className="text-gray-400 text-xs mt-1">Payments</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-bold text-gold">${(myStats?.revenue || 0).toLocaleString()}</p>
+              <p className="text-2xl font-bold text-gold">AED {(myStats?.revenue || 0).toLocaleString()}</p>
               <p className="text-gray-400 text-xs mt-1">Revenue</p>
             </div>
           </div>
@@ -206,7 +206,7 @@ export default function DashboardPage() {
                 <div className="bg-navy-800 rounded-t-xl pt-3 pb-6 border border-navy-700 border-b-0">
                   <span className="text-gray-300 text-2xl">🥈</span>
                   <p className="text-white text-xs font-semibold mt-1 truncate px-2">{filtered[1].fullName}</p>
-                  <p className="text-gold text-xs">${filtered[1].revenue.toLocaleString()}</p>
+                  <p className="text-gold text-xs">AED {filtered[1].revenue.toLocaleString()}</p>
                 </div>
                 <div className="bg-gray-400/20 h-16 rounded-b-lg" />
               </div>
@@ -221,7 +221,7 @@ export default function DashboardPage() {
                 <div className="bg-navy-800 rounded-t-xl pt-3 pb-6 border border-gold/30 border-b-0">
                   <span className="text-3xl">👑</span>
                   <p className="text-white text-sm font-bold mt-1 truncate px-2">{filtered[0].fullName}</p>
-                  <p className="text-gold text-sm font-semibold">${filtered[0].revenue.toLocaleString()}</p>
+                  <p className="text-gold text-sm font-semibold">AED {filtered[0].revenue.toLocaleString()}</p>
                 </div>
                 <div className="bg-gold/20 h-24 rounded-b-lg" />
               </div>
@@ -236,7 +236,7 @@ export default function DashboardPage() {
                 <div className="bg-navy-800 rounded-t-xl pt-3 pb-6 border border-navy-700 border-b-0">
                   <span className="text-amber-600 text-2xl">🥉</span>
                   <p className="text-white text-xs font-semibold mt-1 truncate px-2">{filtered[2].fullName}</p>
-                  <p className="text-gold text-xs">${filtered[2].revenue.toLocaleString()}</p>
+                  <p className="text-gold text-xs">AED {filtered[2].revenue.toLocaleString()}</p>
                 </div>
                 <div className="bg-amber-600/20 h-10 rounded-b-lg" />
               </div>
@@ -259,7 +259,7 @@ export default function DashboardPage() {
                 </thead>
                 <tbody>
                   {filtered.map((a, idx) => {
-                    const isMe = agent && a.agentId === agent.agentId;
+                    const isMe = agent && (a.agentId === agent.agentId || a.email === agent.email);
                     return (
                       <tr
                         key={a.agentId}
@@ -293,7 +293,7 @@ export default function DashboardPage() {
                         <td className="px-4 py-3 text-center text-white text-sm">{a.meetingsDone}</td>
                         <td className="px-4 py-3 text-center text-green-400 text-sm">{a.paymentReceived}</td>
                         <td className="px-4 py-3 text-right text-gold font-semibold text-sm">
-                          ${a.revenue.toLocaleString()}
+                          AED {a.revenue.toLocaleString()}
                         </td>
                       </tr>
                     );
@@ -318,11 +318,12 @@ export default function DashboardPage() {
               No recent activity
             </div>
           ) : (
-            recentLeads.filter((l) => isInTimePeriod(l.submittedAt, timePeriod)).map((lead, idx) => {
+            recentLeads.filter((l) => isInTimePeriod(l.timestamp, timePeriod)).map((lead, idx) => {
               const pkg = PACKAGES.find((p) => p.id === lead.package || p.name === lead.package);
+              const clientName = `${lead.firstName} ${lead.lastName}`.trim();
               return (
                 <div
-                  key={`${lead.leadId}-${idx}`}
+                  key={`${lead.timestamp}-${idx}`}
                   className="bg-navy-800 rounded-xl p-4 border border-navy-700 hover:border-navy-600 transition-colors"
                 >
                   <div className="flex items-start justify-between">
@@ -335,7 +336,7 @@ export default function DashboardPage() {
                       <div>
                         <p className="text-white text-sm font-medium">{lead.agentName}</p>
                         <p className="text-gray-400 text-xs">
-                          New lead: <span className="text-gray-300">{lead.clientName}</span>
+                          New lead: <span className="text-gray-300">{clientName}</span>
                         </p>
                       </div>
                     </div>
@@ -344,7 +345,7 @@ export default function DashboardPage() {
                         {pkg?.name || lead.package}
                       </span>
                       <p className="text-gray-500 text-xs mt-1">
-                        {new Date(lead.submittedAt).toLocaleDateString()}
+                        {new Date(lead.timestamp).toLocaleDateString()}
                       </p>
                     </div>
                   </div>

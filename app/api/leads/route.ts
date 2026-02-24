@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentAgent } from '@/lib/auth';
-import { getLeadsByAgent, createLead, findAgentById } from '@/lib/sheets';
-import { generateLeadId } from '@/lib/utils';
+import { getLeadsByAgent, createLead, findAgentById, createMeetingRequest } from '@/lib/sheets';
 import { sendLeadConfirmationToClient, sendLeadNotificationToAgent } from '@/lib/email';
 
 export async function GET() {
@@ -11,7 +10,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
-    const leads = await getLeadsByAgent(currentAgent.agentId);
+    const leads = await getLeadsByAgent(currentAgent.email);
     return NextResponse.json({ leads });
   } catch (error) {
     console.error('Get leads error:', error);
@@ -21,10 +20,24 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { agentId, clientName, clientEmail, clientPhone, packageId, meeting } = await request.json();
+    const body = await request.json();
+    const {
+      agentId,
+      firstName,
+      lastName,
+      clientEmail,
+      clientPhone,
+      packageId,
+      companyName,
+      teamSize,
+      preferredContact,
+      bestTime,
+      notes,
+      meeting,
+    } = body;
 
-    if (!agentId || !clientName || !clientEmail || !clientPhone || !packageId) {
-      return NextResponse.json({ error: 'All fields are required' }, { status: 400 });
+    if (!agentId || !firstName || !lastName || !clientEmail || !clientPhone || !packageId) {
+      return NextResponse.json({ error: 'All required fields must be filled' }, { status: 400 });
     }
 
     const agent = await findAgentById(agentId);
@@ -32,40 +45,45 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Agent not found' }, { status: 404 });
     }
 
-    const leadId = generateLeadId();
+    const clientName = `${firstName} ${lastName}`;
 
     await createLead({
-      leadId,
-      agentId: agent.agentId,
       agentName: agent.fullName,
-      clientName,
+      agentEmail: agent.email,
+      firstName,
+      lastName,
       clientEmail,
       clientPhone,
-      package: packageId,
-      submittedAt: new Date().toISOString(),
+      packageId,
+      companyName: companyName || '',
+      teamSize: teamSize || '',
+      preferredContact: preferredContact || '',
+      bestTime: bestTime || '',
+      notes: notes || '',
+      leadSource: 'QR Code',
     });
 
     // Send emails (non-blocking)
-    sendLeadConfirmationToClient(clientEmail, clientName, agent.fullName, packageId);
+    sendLeadConfirmationToClient(agent.email, clientEmail, clientName, agent.fullName, packageId);
     sendLeadNotificationToAgent(agent.email, agent.fullName, clientName, clientEmail, clientPhone, packageId);
 
     // Create meeting request if provided
     if (meeting?.preferredDate) {
-      const { createMeetingRequest } = await import('@/lib/sheets');
-      const { generateRequestId } = await import('@/lib/utils');
       await createMeetingRequest({
-        requestId: generateRequestId(),
-        leadId,
-        agentId: agent.agentId,
+        agentName: agent.fullName,
+        agentEmail: agent.email,
         clientName,
         clientEmail,
+        clientPhone,
+        packageInterest: packageId,
         preferredDate: meeting.preferredDate,
         preferredTime: meeting.preferredTime || '',
+        meetingType: meeting.meetingType || 'Virtual',
         notes: meeting.notes || '',
       });
     }
 
-    return NextResponse.json({ success: true, leadId });
+    return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Create lead error:', error);
     return NextResponse.json({ error: 'Failed to submit lead' }, { status: 500 });

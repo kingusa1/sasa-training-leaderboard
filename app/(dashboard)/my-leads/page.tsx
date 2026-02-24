@@ -30,7 +30,13 @@ export default function MyLeadsPage() {
 
   async function handleToggle(lead: Lead, field: 'meetingDone' | 'paymentReceived') {
     if (!lead.rowIndex) return;
-    const key = `${lead.leadId}-${field}`;
+
+    // Enforce: Meeting must be done before payment can be toggled ON
+    if (field === 'paymentReceived' && !lead.meetingDone && !lead.paymentReceived) {
+      return;
+    }
+
+    const key = `${lead.timestamp}-${field}`;
     setToggling(key);
 
     const newValue = !lead[field];
@@ -38,7 +44,7 @@ export default function MyLeadsPage() {
     // Optimistic update
     setLeads((prev) =>
       prev.map((l) =>
-        l.leadId === lead.leadId ? { ...l, [field]: newValue } : l
+        l.rowIndex === lead.rowIndex ? { ...l, [field]: newValue } : l
       )
     );
 
@@ -50,18 +56,16 @@ export default function MyLeadsPage() {
       });
 
       if (!res.ok) {
-        // Revert on failure
         setLeads((prev) =>
           prev.map((l) =>
-            l.leadId === lead.leadId ? { ...l, [field]: !newValue } : l
+            l.rowIndex === lead.rowIndex ? { ...l, [field]: !newValue } : l
           )
         );
       }
     } catch {
-      // Revert on error
       setLeads((prev) =>
         prev.map((l) =>
-          l.leadId === lead.leadId ? { ...l, [field]: !newValue } : l
+          l.rowIndex === lead.rowIndex ? { ...l, [field]: !newValue } : l
         )
       );
     } finally {
@@ -158,24 +162,31 @@ export default function MyLeadsPage() {
         <div className="space-y-3">
           {filteredLeads.map((lead) => {
             const pkg = PACKAGES.find((p) => p.id === lead.package || p.name === lead.package);
+            const clientName = `${lead.firstName} ${lead.lastName}`.trim();
             return (
               <div
-                key={lead.leadId}
+                key={lead.rowIndex}
                 className="bg-navy-800 rounded-xl p-4 border border-navy-700"
               >
                 {/* Header */}
                 <div className="flex items-start justify-between mb-3">
                   <div>
-                    <h3 className="text-white font-semibold">{lead.clientName}</h3>
+                    <h3 className="text-white font-semibold">{clientName}</h3>
                     <p className="text-gray-400 text-sm">{lead.clientEmail}</p>
                     <p className="text-gray-500 text-xs">{lead.clientPhone}</p>
+                    {lead.companyName && (
+                      <p className="text-gray-500 text-xs mt-0.5">🏢 {lead.companyName}</p>
+                    )}
                   </div>
                   <div className="text-right">
                     <span className="text-xs bg-navy-600 text-gray-300 px-2 py-1 rounded-full">
                       {pkg?.name || lead.package}
                     </span>
-                    {pkg && (
-                      <p className="text-gold text-sm font-semibold mt-1">${pkg.price.toLocaleString()}</p>
+                    {pkg && pkg.price > 0 && (
+                      <p className="text-gold text-sm font-semibold mt-1">AED {pkg.price.toLocaleString()}</p>
+                    )}
+                    {pkg && pkg.price === 0 && (
+                      <p className="text-gold text-sm font-semibold mt-1">Custom</p>
                     )}
                   </div>
                 </div>
@@ -196,8 +207,13 @@ export default function MyLeadsPage() {
                     </span>
                   )}
                   <span className="text-gray-500 text-xs ml-2">
-                    {new Date(lead.submittedAt).toLocaleDateString()}
+                    {new Date(lead.timestamp).toLocaleDateString()}
                   </span>
+                  {lead.preferredContact && (
+                    <span className="text-gray-500 text-xs ml-2">
+                      Contact via: {lead.preferredContact}
+                    </span>
+                  )}
                 </div>
 
                 {/* Toggle Switches */}
@@ -210,7 +226,7 @@ export default function MyLeadsPage() {
                         className="sr-only"
                         checked={lead.meetingDone}
                         onChange={() => handleToggle(lead, 'meetingDone')}
-                        disabled={toggling === `${lead.leadId}-meetingDone`}
+                        disabled={toggling === `${lead.timestamp}-meetingDone`}
                       />
                       <div
                         className={`w-11 h-6 rounded-full transition-colors ${
@@ -228,14 +244,14 @@ export default function MyLeadsPage() {
                   </label>
 
                   {/* Payment Received Toggle */}
-                  <label className="flex items-center gap-3 cursor-pointer">
+                  <label className={`flex items-center gap-3 ${lead.meetingDone ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'}`}>
                     <div className="relative">
                       <input
                         type="checkbox"
                         className="sr-only"
                         checked={lead.paymentReceived}
                         onChange={() => handleToggle(lead, 'paymentReceived')}
-                        disabled={toggling === `${lead.leadId}-paymentReceived`}
+                        disabled={toggling === `${lead.timestamp}-paymentReceived` || (!lead.meetingDone && !lead.paymentReceived)}
                       />
                       <div
                         className={`w-11 h-6 rounded-full transition-colors ${

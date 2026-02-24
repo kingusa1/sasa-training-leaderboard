@@ -25,11 +25,29 @@ async function setup() {
   const existingSheets = spreadsheet.data.sheets.map(s => s.properties.title);
   console.log('Existing tabs:', existingSheets);
 
-  // Tabs we need
+  // Tabs we need with new column structure
   const tabs = [
-    { name: 'Agent Credentials', headers: ['AgentID', 'FullName', 'Email', 'Phone', 'HashedPassword', 'CreatedAt'] },
-    { name: 'Leads', headers: ['LeadID', 'AgentID', 'AgentName', 'ClientName', 'ClientEmail', 'ClientPhone', 'Package', 'SubmittedAt', 'MeetingDone', 'PaymentReceived'] },
-    { name: 'Meeting Requests', headers: ['RequestID', 'LeadID', 'AgentID', 'ClientName', 'ClientEmail', 'PreferredDate', 'PreferredTime', 'Notes', 'CreatedAt'] },
+    {
+      name: 'Agent Credentials',
+      headers: ['AgentID', 'FullName', 'Email', 'Phone', 'HashedPassword', 'EmailPassword', 'EmailConnected', 'CreatedAt'],
+    },
+    {
+      name: 'Leads',
+      headers: [
+        'Timestamp', 'AgentName', 'AgentEmail', 'FirstName', 'LastName',
+        'ClientEmail', 'ClientPhone', 'Package', 'CompanyName', 'TeamSize',
+        'PreferredContact', 'BestTime', 'Notes', 'MeetingDone', 'PaymentReceived',
+        'Status', 'LeadSource',
+      ],
+    },
+    {
+      name: 'Meeting Requests',
+      headers: [
+        'Timestamp', 'AgentName', 'AgentEmail', 'ClientName', 'ClientEmail',
+        'ClientPhone', 'PackageInterest', 'PreferredDate', 'PreferredTime',
+        'MeetingType', 'Notes', 'Status',
+      ],
+    },
   ];
 
   // Create missing tabs
@@ -55,17 +73,18 @@ async function setup() {
     console.log('Created new tabs');
   }
 
-  // Add headers to each tab
+  // Add headers to each tab (overwrites row 1)
   for (const tab of tabs) {
+    const endCol = String.fromCharCode(64 + tab.headers.length);
     await sheets.spreadsheets.values.update({
       spreadsheetId: SHEET_ID,
-      range: `'${tab.name}'!A1:${String.fromCharCode(64 + tab.headers.length)}1`,
+      range: `'${tab.name}'!A1:${endCol}1`,
       valueInputOption: 'USER_ENTERED',
       requestBody: {
         values: [tab.headers],
       },
     });
-    console.log(`Set headers for: ${tab.name}`);
+    console.log(`Set headers for: ${tab.name} (${tab.headers.length} columns)`);
   }
 
   // Delete default "Sheet1" if it exists and we have our tabs
@@ -89,6 +108,11 @@ async function setup() {
   }
 
   console.log('\nGoogle Sheet setup complete!');
+  console.log('\nColumn structure:');
+  for (const tab of tabs) {
+    console.log(`\n${tab.name}:`);
+    tab.headers.forEach((h, i) => console.log(`  Col ${String.fromCharCode(65 + i)} (${i}): ${h}`));
+  }
 }
 
 setup().catch(console.error);
