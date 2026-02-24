@@ -217,8 +217,8 @@ export default function ClientFormPage() {
 
       <div className="relative z-10">
         {/* Hero Header */}
-        <div className="relative overflow-hidden">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 pt-4 sm:pt-12 pb-3 sm:pb-6">
+        <div>
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 pt-4 sm:pt-12 pb-2 sm:pb-6">
             {/* Logo + Badge */}
             <div className="text-center animate-fade-in">
               <div className="inline-block mb-3 sm:mb-6">
@@ -288,9 +288,9 @@ export default function ClientFormPage() {
                       setSelectedPackage(p.id);
                       setExpandedPackage(isExpanded && !isSelected ? null : p.id);
                     }}
-                    className={`w-full text-left rounded-2xl transition-all duration-500 overflow-hidden relative group ${
+                    className={`w-full text-left rounded-2xl overflow-hidden relative group ${
                       isSelected
-                        ? 'lux-glass lux-border-glow ring-1 ring-white/20'
+                        ? 'lux-glass ring-1 ring-white/20'
                         : 'lux-glass hover:bg-white/[0.08]'
                     }`}
                   >
@@ -303,16 +303,13 @@ export default function ClientFormPage() {
                       </div>
                     )}
 
-                    {/* Shimmer on hover */}
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 lux-shimmer rounded-2xl" />
-
                     <div className="relative p-4 sm:p-6">
                       <div className="flex items-start gap-3 sm:gap-4">
                         {/* Selection indicator */}
-                        <div className={`flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 mt-0.5 flex items-center justify-center transition-all duration-300 ${
+                        <div className={`flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 mt-0.5 flex items-center justify-center ${
                           isSelected
                             ? 'border-[#14758A] bg-[#14758A]'
-                            : 'border-white/20 group-hover:border-white/40'
+                            : 'border-white/20'
                         }`}>
                           {isSelected && (
                             <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -324,7 +321,7 @@ export default function ClientFormPage() {
                         <div className="flex-1 min-w-0">
                           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 sm:gap-3">
                             <div>
-                              <h3 className={`font-bold text-base sm:text-lg transition-colors ${isSelected ? 'text-white' : 'text-white/80'}`}>
+                              <h3 className={`font-bold text-base sm:text-lg ${isSelected ? 'text-white' : 'text-white/80'}`}>
                                 {p.name}
                               </h3>
                               <p className="text-white/30 text-[11px] sm:text-xs mt-0.5">{p.fullName}</p>
@@ -332,14 +329,14 @@ export default function ClientFormPage() {
                             <div className="sm:text-right flex-shrink-0 mt-1 sm:mt-0">
                               {p.price > 0 ? (
                                 <div className="flex sm:flex-col items-baseline sm:items-end gap-2 sm:gap-0">
-                                  <p className={`font-bold text-lg sm:text-2xl transition-colors ${isSelected ? 'text-white' : 'text-white/70'}`}>
+                                  <p className={`font-bold text-lg sm:text-2xl ${isSelected ? 'text-white' : 'text-white/70'}`}>
                                     AED {p.price.toLocaleString()}
                                   </p>
                                   <p className="text-white/30 text-[10px] uppercase tracking-wider">one-time</p>
                                 </div>
                               ) : (
                                 <div className="flex sm:flex-col items-baseline sm:items-end gap-2 sm:gap-0">
-                                  <p className={`font-bold text-lg sm:text-xl transition-colors ${isSelected ? 'text-white' : 'text-white/70'}`}>Custom</p>
+                                  <p className={`font-bold text-lg sm:text-xl ${isSelected ? 'text-white' : 'text-white/70'}`}>Custom</p>
                                   <p className="text-white/30 text-[10px] uppercase tracking-wider">tailored</p>
                                 </div>
                               )}
@@ -348,23 +345,23 @@ export default function ClientFormPage() {
 
                           <p className="text-white/40 text-xs sm:text-sm mt-2 sm:mt-2.5 leading-relaxed">{p.description}</p>
 
-                          {/* Expandable Features */}
-                          <div className={`overflow-hidden transition-all duration-500 ease-out ${isExpanded ? 'max-h-80 opacity-100 mt-4' : 'max-h-0 opacity-0'}`}>
-                            <div className="pt-4 border-t border-white/10">
-                              <div className="grid grid-cols-1 gap-2.5">
+                          {/* Features - only rendered when expanded */}
+                          {isExpanded && (
+                            <div className="mt-4 pt-4 border-t border-white/10">
+                              <div className="grid grid-cols-1 gap-2">
                                 {p.features.map((f, i) => (
-                                  <div key={i} className="flex items-start gap-2.5">
-                                    <div className="w-5 h-5 rounded-full bg-[#14758A]/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                      <svg className="w-3 h-3 text-[#14758A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <div key={i} className="flex items-start gap-2">
+                                    <div className="w-4 h-4 rounded-full bg-[#14758A]/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                      <svg className="w-2.5 h-2.5 text-[#14758A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                                       </svg>
                                     </div>
-                                    <span className="text-white/60 text-sm">{f}</span>
+                                    <span className="text-white/60 text-xs sm:text-sm">{f}</span>
                                   </div>
                                 ))}
                               </div>
                             </div>
-                          </div>
+                          )}
                         </div>
                       </div>
                     </div>
