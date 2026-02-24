@@ -308,10 +308,10 @@ export default function ClientFormPage() {
                     {/* Shimmer on hover */}
                     <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 lux-shimmer rounded-2xl" />
 
-                    <div className="relative p-5 sm:p-6">
-                      <div className="flex items-start gap-4">
+                    <div className="relative p-4 sm:p-6">
+                      <div className="flex items-start gap-3 sm:gap-4">
                         {/* Selection indicator */}
-                        <div className={`flex-shrink-0 w-6 h-6 rounded-full border-2 mt-0.5 flex items-center justify-center transition-all duration-300 ${
+                        <div className={`flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 mt-0.5 flex items-center justify-center transition-all duration-300 ${
                           isSelected
                             ? 'border-[#14758A] bg-[#14758A]'
                             : 'border-white/20 group-hover:border-white/40'
@@ -324,31 +324,31 @@ export default function ClientFormPage() {
                         </div>
 
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between gap-3">
+                          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 sm:gap-3">
                             <div>
-                              <h3 className={`font-bold text-lg transition-colors ${isSelected ? 'text-white' : 'text-white/80'}`}>
+                              <h3 className={`font-bold text-base sm:text-lg transition-colors ${isSelected ? 'text-white' : 'text-white/80'}`}>
                                 {p.name}
                               </h3>
-                              <p className="text-white/30 text-xs mt-0.5">{p.fullName}</p>
+                              <p className="text-white/30 text-[11px] sm:text-xs mt-0.5">{p.fullName}</p>
                             </div>
-                            <div className="text-right flex-shrink-0">
+                            <div className="sm:text-right flex-shrink-0 mt-1 sm:mt-0">
                               {p.price > 0 ? (
-                                <>
-                                  <p className={`font-bold text-xl sm:text-2xl transition-colors ${isSelected ? 'text-white' : 'text-white/70'}`}>
+                                <div className="flex sm:flex-col items-baseline sm:items-end gap-2 sm:gap-0">
+                                  <p className={`font-bold text-lg sm:text-2xl transition-colors ${isSelected ? 'text-white' : 'text-white/70'}`}>
                                     AED {p.price.toLocaleString()}
                                   </p>
                                   <p className="text-white/30 text-[10px] uppercase tracking-wider">one-time</p>
-                                </>
+                                </div>
                               ) : (
-                                <>
-                                  <p className={`font-bold text-xl transition-colors ${isSelected ? 'text-white' : 'text-white/70'}`}>Custom</p>
+                                <div className="flex sm:flex-col items-baseline sm:items-end gap-2 sm:gap-0">
+                                  <p className={`font-bold text-lg sm:text-xl transition-colors ${isSelected ? 'text-white' : 'text-white/70'}`}>Custom</p>
                                   <p className="text-white/30 text-[10px] uppercase tracking-wider">tailored</p>
-                                </>
+                                </div>
                               )}
                             </div>
                           </div>
 
-                          <p className="text-white/40 text-sm mt-2.5 leading-relaxed">{p.description}</p>
+                          <p className="text-white/40 text-xs sm:text-sm mt-2 sm:mt-2.5 leading-relaxed">{p.description}</p>
 
                           {/* Expandable Features */}
                           <div className={`overflow-hidden transition-all duration-500 ease-out ${isExpanded ? 'max-h-80 opacity-100 mt-4' : 'max-h-0 opacity-0'}`}>
@@ -571,7 +571,7 @@ export default function ClientFormPage() {
                 <button
                   onClick={handleBuyNow}
                   disabled={submitting || !isFormValid}
-                  className="w-full relative overflow-hidden bg-gradient-to-r from-[#002E59] via-[#004686] to-[#002E59] bg-[length:200%_100%] py-4 sm:py-5 rounded-2xl font-bold text-white text-lg hover:shadow-2xl hover:shadow-[#004686]/30 transition-all duration-500 disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.99] group"
+                  className="w-full relative overflow-hidden bg-gradient-to-r from-[#002E59] via-[#004686] to-[#002E59] bg-[length:200%_100%] py-4 sm:py-5 rounded-2xl font-bold text-white text-base sm:text-lg hover:shadow-2xl hover:shadow-[#004686]/30 transition-all duration-500 disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.99] group"
                   style={{ backgroundPosition: 'left center' }}
                   onMouseEnter={(e) => (e.currentTarget.style.backgroundPosition = 'right center')}
                   onMouseLeave={(e) => (e.currentTarget.style.backgroundPosition = 'left center')}
@@ -607,7 +607,7 @@ export default function ClientFormPage() {
               <button
                 onClick={handleScheduleMeeting}
                 disabled={submitting || !isFormValid}
-                className={`w-full py-4 sm:py-5 rounded-2xl font-bold text-lg transition-all duration-500 disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.99] group ${
+                className={`w-full py-4 sm:py-5 rounded-2xl font-bold text-base sm:text-lg transition-all duration-500 disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.99] group ${
                   isEnterprise
                     ? 'relative overflow-hidden bg-gradient-to-r from-[#002E59] via-[#004686] to-[#002E59] bg-[length:200%_100%] text-white hover:shadow-2xl hover:shadow-[#004686]/30'
                     : 'border-2 border-[#002E59]/20 text-[#002E59] hover:bg-[#002E59] hover:text-white hover:border-[#002E59] hover:shadow-lg'
@@ -643,7 +643,7 @@ export default function ClientFormPage() {
 
         {/* Trust Badges */}
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
-          <div className="flex flex-wrap justify-center gap-6 sm:gap-10 lux-card" style={{ animationDelay: '0.7s' }}>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-10 lux-card" style={{ animationDelay: '0.7s' }}>
             {[
               { icon: (
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
