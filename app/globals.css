@@ -69,3 +69,117 @@ body {
 /* Hide scrollbar for filter tabs */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ===== LUXURY FORM ANIMATIONS ===== */
+
+@keyframes luxuryGradient {
+  0% { background-position: 0% 50%; }
+  25% { background-position: 50% 0%; }
+  50% { background-position: 100% 50%; }
+  75% { background-position: 50% 100%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.15; }
+  50% { transform: translateY(-30px) rotate(5deg); opacity: 0.3; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(0, 70, 134, 0.15), 0 0 60px rgba(0, 70, 134, 0.05); }
+  50% { box-shadow: 0 0 40px rgba(0, 70, 134, 0.25), 0 0 80px rgba(0, 70, 134, 0.1); }
+}
+
+@keyframes borderGlow {
+  0%, 100% { border-color: rgba(0, 70, 134, 0.3); }
+  50% { border-color: rgba(0, 70, 134, 0.7); }
+}
+
+@keyframes textGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes ripple {
+  0% { transform: scale(0.8); opacity: 1; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+
+.lux-bg {
+  background: linear-gradient(-45deg, #001829, #002E59, #004686, #14758A, #004686, #002E59);
+  background-size: 400% 400%;
+  animation: luxuryGradient 15s ease infinite;
+}
+
+.lux-card {
+  animation: scaleIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+}
+
+.lux-slide-left {
+  animation: slideInLeft 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+}
+
+.lux-slide-right {
+  animation: slideInRight 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+}
+
+.lux-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+.lux-glow {
+  animation: glowPulse 3s ease-in-out infinite;
+}
+
+.lux-border-glow {
+  animation: borderGlow 2s ease-in-out infinite;
+}
+
+.lux-text-gradient {
+  background: linear-gradient(135deg, #ffffff, #CCE0EB, #ffffff);
+  background-size: 200% 200%;
+  animation: textGradient 4s ease infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.lux-glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.lux-glass-white {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
