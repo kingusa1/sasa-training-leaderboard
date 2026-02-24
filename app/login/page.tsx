@@ -40,58 +40,87 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-cream-200 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen lux-bg relative flex items-center justify-center p-4">
+      {/* Floating orbs */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-[#004686]/20 blur-3xl" style={{ animation: 'float 8s ease-in-out infinite' }} />
+        <div className="absolute top-1/3 -left-32 w-80 h-80 rounded-full bg-[#14758A]/15 blur-3xl" style={{ animation: 'float 10s ease-in-out infinite 2s' }} />
+        <div className="absolute -bottom-40 right-1/4 w-96 h-96 rounded-full bg-[#004686]/10 blur-3xl" style={{ animation: 'float 12s ease-in-out infinite 4s' }} />
+        <div className="absolute top-20 left-1/3 w-32 h-32 rounded-full bg-white/5 blur-2xl" style={{ animation: 'float 7s ease-in-out infinite 3s' }} />
+      </div>
+
+      {/* Grid overlay */}
+      <div className="fixed inset-0 z-0 opacity-[0.03]" style={{
+        backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)',
+        backgroundSize: '60px 60px',
+      }} />
+
+      <div className="relative z-10 w-full max-w-md">
         {/* Logo */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-8 lux-card" style={{ animationDelay: '0.1s' }}>
           <Image
             src="/images/logo/sasa-logo-color.png"
             alt="SASA Worldwide"
             width={180}
             height={60}
-            className="mx-auto mb-3"
+            className="mx-auto mb-4 brightness-0 invert opacity-90"
             priority
           />
-          <h1 className="text-2xl font-bold text-navy-500">Training Course Leaderboard</h1>
-          <p className="text-gray-500 mt-2">Agent Login</p>
+          <h1 className="text-2xl font-bold lux-text-gradient">Training Sales Platform</h1>
+          <p className="text-white/40 mt-2 text-sm">Agent Login</p>
         </div>
 
         {/* Form Card */}
-        <div className="bg-white rounded-2xl p-8 shadow-card border border-gray-100">
+        <div className="lux-glass-white rounded-2xl p-8 shadow-2xl shadow-black/20 lux-card" style={{ animationDelay: '0.2s' }}>
           <form onSubmit={handleSubmit} className="space-y-5">
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-red-600 text-sm">
+              <div className="bg-red-50 border border-red-100 rounded-xl p-3 text-red-600 text-sm flex items-center gap-2">
+                <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
                 {error}
               </div>
             )}
 
             <div>
-              <label className="block text-navy-700 text-sm font-medium mb-2">Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-cream-50 border border-gray-200 rounded-lg px-4 py-3 text-navy-800 placeholder-gray-400 focus:outline-none focus:border-navy-500 focus:ring-1 focus:ring-navy-500 transition-colors"
-                placeholder="your@sasa-worldwide.com"
-                required
-              />
+              <label className="block text-[#002E59] text-xs font-semibold mb-2 uppercase tracking-wider">Email</label>
+              <div className="relative">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full border-2 border-gray-100 rounded-xl pl-12 pr-4 py-3.5 text-gray-800 placeholder-gray-300 focus:outline-none focus:border-[#004686] focus:ring-4 focus:ring-[#004686]/5 transition-all bg-gray-50/50 focus:bg-white"
+                  placeholder="your@sasa-worldwide.com"
+                  required
+                />
+              </div>
             </div>
 
             <div>
-              <label className="block text-navy-700 text-sm font-medium mb-2">Password</label>
+              <label className="block text-[#002E59] text-xs font-semibold mb-2 uppercase tracking-wider">Password</label>
               <div className="relative">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                </div>
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-cream-50 border border-gray-200 rounded-lg px-4 py-3 pr-12 text-navy-800 placeholder-gray-400 focus:outline-none focus:border-navy-500 focus:ring-1 focus:ring-navy-500 transition-colors"
+                  className="w-full border-2 border-gray-100 rounded-xl pl-12 pr-12 py-3.5 text-gray-800 placeholder-gray-300 focus:outline-none focus:border-[#004686] focus:ring-4 focus:ring-[#004686]/5 transition-all bg-gray-50/50 focus:bg-white"
                   placeholder="Enter your password"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-navy-500 transition-colors p-1"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-[#004686] transition-colors p-1"
                 >
                   {showPassword ? (
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -110,15 +139,30 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-navy-500 py-3 rounded-lg font-semibold text-white hover:bg-navy-600 transition-colors disabled:opacity-50 shadow-navy"
+              className="w-full relative overflow-hidden bg-gradient-to-r from-[#002E59] via-[#004686] to-[#002E59] bg-[length:200%_100%] py-3.5 rounded-xl font-bold text-white hover:shadow-xl hover:shadow-[#004686]/20 transition-all duration-500 disabled:opacity-50 active:scale-[0.99]"
+              style={{ backgroundPosition: 'left center' }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundPosition = 'right center')}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundPosition = 'left center')}
             >
-              {loading ? 'Signing in...' : 'Sign In'}
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Signing in...
+                </span>
+              ) : (
+                <span className="flex items-center justify-center gap-2">
+                  Sign In
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </span>
+              )}
             </button>
           </form>
 
-          <p className="text-center text-gray-500 mt-6 text-sm">
+          <p className="text-center text-gray-400 mt-6 text-sm">
             Don&apos;t have an account?{' '}
-            <Link href="/signup" className="text-navy-500 hover:text-navy-700 font-medium transition-colors">
+            <Link href="/signup" className="text-[#004686] hover:text-[#002E59] font-semibold transition-colors">
               Sign Up
             </Link>
           </p>
