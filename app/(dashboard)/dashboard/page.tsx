@@ -1,0 +1,369 @@
+'use client';
+
+import { useState, useEffect, useCallback } from 'react';
+import { AgentLeaderboardStats, Lead } from '@/lib/types';
+import { PACKAGES } from '@/lib/constants';
+
+type TimePeriod = 'today' | 'week' | 'month' | 'all';
+
+const TIME_LABELS: Record<TimePeriod, string> = {
+  today: 'Today',
+  week: 'This Week',
+  month: 'This Month',
+  all: 'All Time',
+};
+
+interface AgentInfo {
+  agentId: string;
+  fullName: string;
+  email: string;
+}
+
+function isInTimePeriod(dateStr: string, period: TimePeriod): boolean {
+  if (period === 'all') return true;
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return false;
+  const now = new Date();
+
+  if (period === 'today') {
+    return (
+      date.getDate() === now.getDate() &&
+      date.getMonth() === now.getMonth() &&
+      date.getFullYear() === now.getFullYear()
+    );
+  }
+  if (period === 'week') {
+    const startOfWeek = new Date(now);
+    startOfWeek.setDate(now.getDate() - now.getDay());
+    startOfWeek.setHours(0, 0, 0, 0);
+    return date >= startOfWeek;
+  }
+  if (period === 'month') {
+    return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+  }
+  return true;
+}
+
+function filterByTimePeriod(
+  stats: AgentLeaderboardStats[],
+  period: TimePeriod
+): AgentLeaderboardStats[] {
+  if (period === 'all') return stats;
+
+  return stats
+    .map((agent) => {
+      const filteredLeads = agent.leads.filter((l) => isInTimePeriod(l.submittedAt, period));
+      let revenue = 0;
+      let meetingsDone = 0;
+      let paymentReceived = 0;
+      for (const lead of filteredLeads) {
+        if (lead.meetingDone) meetingsDone++;
+        if (lead.paymentReceived) {
+          paymentReceived++;
+          const pkg = PACKAGES.find((p) => p.id === lead.package || p.name === lead.package);
+          if (pkg) revenue += pkg.price;
+        }
+      }
+      return {
+        ...agent,
+        totalLeads: filteredLeads.length,
+        meetingsDone,
+        paymentReceived,
+        revenue,
+        leads: filteredLeads,
+      };
+    })
+    .filter((a) => a.totalLeads > 0)
+    .sort((a, b) => b.revenue - a.revenue || b.totalLeads - a.totalLeads);
+}
+
+export default function DashboardPage() {
+  const [leaderboard, setLeaderboard] = useState<AgentLeaderboardStats[]>([]);
+  const [recentLeads, setRecentLeads] = useState<Omit<Lead, 'rowIndex'>[]>([]);
+  const [timePeriod, setTimePeriod] = useState<TimePeriod>('all');
+  const [loading, setLoading] = useState(true);
+  const [agent, setAgent] = useState<AgentInfo | null>(null);
+  const [activeTab, setActiveTab] = useState<'rankings' | 'activity'>('rankings');
+
+  const fetchData = useCallback(async () => {
+    try {
+      const res = await fetch('/api/leaderboard');
+      const data = await res.json();
+      if (data.leaderboard) setLeaderboard(data.leaderboard);
+      if (data.recentLeads) setRecentLeads(data.recentLeads);
+    } catch (err) {
+      console.error('Failed to load leaderboard:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+    fetch('/api/auth/me')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.agent) setAgent(data.agent);
+      })
+      .catch(() => {});
+  }, [fetchData]);
+
+  const filtered = filterByTimePeriod(leaderboard, timePeriod);
+  const myStats = agent ? filtered.find((a) => a.agentId === agent.agentId) : null;
+  const myRank = agent ? filtered.findIndex((a) => a.agentId === agent.agentId) + 1 : 0;
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-gold/30 border-t-gold rounded-full animate-spin mx-auto" />
+          <p className="text-gray-400 mt-4">Loading leaderboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Your Stats Card */}
+      {agent && (
+        <div className="bg-gradient-to-r from-navy-800 to-navy-700 rounded-2xl p-6 border border-navy-600">
+          <h2 className="font-heading text-lg font-semibold text-white mb-4">Your Performance</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="text-center">
+              <p className="text-2xl font-bold text-gold">{myRank > 0 ? `#${myRank}` : '-'}</p>
+              <p className="text-gray-400 text-xs mt-1">Rank</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-bold text-white">{myStats?.totalLeads || 0}</p>
+              <p className="text-gray-400 text-xs mt-1">Total Leads</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-bold text-green-400">{myStats?.paymentReceived || 0}</p>
+              <p className="text-gray-400 text-xs mt-1">Payments</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-bold text-gold">${(myStats?.revenue || 0).toLocaleString()}</p>
+              <p className="text-gray-400 text-xs mt-1">Revenue</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Time Period Filter */}
+      <div className="grid grid-cols-4 gap-2">
+        {(Object.keys(TIME_LABELS) as TimePeriod[]).map((period) => (
+          <button
+            key={period}
+            onClick={() => setTimePeriod(period)}
+            className={`py-2 px-3 rounded-lg text-xs sm:text-sm font-medium transition-all ${
+              timePeriod === period
+                ? 'bg-gold text-navy-900 shadow-lg shadow-gold/20'
+                : 'bg-navy-800 text-gray-400 hover:bg-navy-700 border border-navy-700'
+            }`}
+          >
+            {TIME_LABELS[period]}
+          </button>
+        ))}
+      </div>
+
+      {/* Tabs */}
+      <div className="flex gap-2">
+        <button
+          onClick={() => setActiveTab('rankings')}
+          className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-all ${
+            activeTab === 'rankings'
+              ? 'bg-gold text-navy-900'
+              : 'bg-navy-800 text-gray-400 border border-navy-700'
+          }`}
+        >
+          🏆 Rankings
+        </button>
+        <button
+          onClick={() => setActiveTab('activity')}
+          className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-all ${
+            activeTab === 'activity'
+              ? 'bg-blue-500 text-white'
+              : 'bg-navy-800 text-gray-400 border border-navy-700'
+          }`}
+        >
+          📋 Recent Activity
+        </button>
+      </div>
+
+      {activeTab === 'rankings' ? (
+        <>
+          {/* Podium - Top 3 */}
+          {filtered.length >= 3 && (
+            <div className="flex items-end justify-center gap-3 py-4">
+              {/* 2nd Place */}
+              <div className="text-center flex-1 max-w-[120px]">
+                <div className="w-14 h-14 mx-auto rounded-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center mb-2 ring-2 ring-gray-400">
+                  <span className="text-navy-900 text-sm font-bold">
+                    {filtered[1].fullName.split(' ').map((n) => n[0]).join('').slice(0, 2)}
+                  </span>
+                </div>
+                <div className="bg-navy-800 rounded-t-xl pt-3 pb-6 border border-navy-700 border-b-0">
+                  <span className="text-gray-300 text-2xl">🥈</span>
+                  <p className="text-white text-xs font-semibold mt-1 truncate px-2">{filtered[1].fullName}</p>
+                  <p className="text-gold text-xs">${filtered[1].revenue.toLocaleString()}</p>
+                </div>
+                <div className="bg-gray-400/20 h-16 rounded-b-lg" />
+              </div>
+
+              {/* 1st Place */}
+              <div className="text-center flex-1 max-w-[140px]">
+                <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-gold-dark to-gold flex items-center justify-center mb-2 ring-3 ring-gold shadow-lg shadow-gold/30">
+                  <span className="text-navy-900 text-sm font-bold">
+                    {filtered[0].fullName.split(' ').map((n) => n[0]).join('').slice(0, 2)}
+                  </span>
+                </div>
+                <div className="bg-navy-800 rounded-t-xl pt-3 pb-6 border border-gold/30 border-b-0">
+                  <span className="text-3xl">👑</span>
+                  <p className="text-white text-sm font-bold mt-1 truncate px-2">{filtered[0].fullName}</p>
+                  <p className="text-gold text-sm font-semibold">${filtered[0].revenue.toLocaleString()}</p>
+                </div>
+                <div className="bg-gold/20 h-24 rounded-b-lg" />
+              </div>
+
+              {/* 3rd Place */}
+              <div className="text-center flex-1 max-w-[120px]">
+                <div className="w-14 h-14 mx-auto rounded-full bg-gradient-to-br from-amber-600 to-amber-700 flex items-center justify-center mb-2 ring-2 ring-amber-600">
+                  <span className="text-white text-sm font-bold">
+                    {filtered[2].fullName.split(' ').map((n) => n[0]).join('').slice(0, 2)}
+                  </span>
+                </div>
+                <div className="bg-navy-800 rounded-t-xl pt-3 pb-6 border border-navy-700 border-b-0">
+                  <span className="text-amber-600 text-2xl">🥉</span>
+                  <p className="text-white text-xs font-semibold mt-1 truncate px-2">{filtered[2].fullName}</p>
+                  <p className="text-gold text-xs">${filtered[2].revenue.toLocaleString()}</p>
+                </div>
+                <div className="bg-amber-600/20 h-10 rounded-b-lg" />
+              </div>
+            </div>
+          )}
+
+          {/* Rankings Table */}
+          <div className="bg-navy-800 rounded-2xl border border-navy-700 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-navy-700">
+                    <th className="text-left text-gray-400 text-xs font-medium px-4 py-3">#</th>
+                    <th className="text-left text-gray-400 text-xs font-medium px-4 py-3">Agent</th>
+                    <th className="text-center text-gray-400 text-xs font-medium px-4 py-3">Leads</th>
+                    <th className="text-center text-gray-400 text-xs font-medium px-4 py-3">Meetings</th>
+                    <th className="text-center text-gray-400 text-xs font-medium px-4 py-3">Paid</th>
+                    <th className="text-right text-gray-400 text-xs font-medium px-4 py-3">Revenue</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map((a, idx) => {
+                    const isMe = agent && a.agentId === agent.agentId;
+                    return (
+                      <tr
+                        key={a.agentId}
+                        className={`border-b border-navy-700/50 ${
+                          isMe ? 'bg-gold/5' : 'hover:bg-navy-700/30'
+                        } transition-colors`}
+                      >
+                        <td className="px-4 py-3">
+                          <span className={`text-sm font-bold ${idx < 3 ? 'text-gold' : 'text-gray-500'}`}>
+                            {idx + 1}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-3">
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
+                              isMe
+                                ? 'bg-gradient-to-br from-gold-dark to-gold text-navy-900'
+                                : 'bg-navy-600 text-gray-300'
+                            }`}>
+                              {a.fullName.split(' ').map((n) => n[0]).join('').slice(0, 2)}
+                            </div>
+                            <div>
+                              <p className={`text-sm font-medium ${isMe ? 'text-gold' : 'text-white'}`}>
+                                {a.fullName}
+                                {isMe && <span className="ml-1.5 text-xs text-gold/70">(You)</span>}
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-center text-white text-sm">{a.totalLeads}</td>
+                        <td className="px-4 py-3 text-center text-white text-sm">{a.meetingsDone}</td>
+                        <td className="px-4 py-3 text-center text-green-400 text-sm">{a.paymentReceived}</td>
+                        <td className="px-4 py-3 text-right text-gold font-semibold text-sm">
+                          ${a.revenue.toLocaleString()}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {filtered.length === 0 && (
+                    <tr>
+                      <td colSpan={6} className="text-center text-gray-500 py-8">
+                        No data for this time period
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
+      ) : (
+        /* Activity Feed */
+        <div className="space-y-3">
+          {recentLeads.length === 0 ? (
+            <div className="text-center text-gray-500 py-12 bg-navy-800 rounded-2xl border border-navy-700">
+              No recent activity
+            </div>
+          ) : (
+            recentLeads.filter((l) => isInTimePeriod(l.submittedAt, timePeriod)).map((lead, idx) => {
+              const pkg = PACKAGES.find((p) => p.id === lead.package || p.name === lead.package);
+              return (
+                <div
+                  key={`${lead.leadId}-${idx}`}
+                  className="bg-navy-800 rounded-xl p-4 border border-navy-700 hover:border-navy-600 transition-colors"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-navy-600 flex items-center justify-center">
+                        <span className="text-gray-300 text-xs font-bold">
+                          {lead.agentName.split(' ').map((n) => n[0]).join('').slice(0, 2)}
+                        </span>
+                      </div>
+                      <div>
+                        <p className="text-white text-sm font-medium">{lead.agentName}</p>
+                        <p className="text-gray-400 text-xs">
+                          New lead: <span className="text-gray-300">{lead.clientName}</span>
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-xs bg-navy-600 text-gray-300 px-2 py-1 rounded-full">
+                        {pkg?.name || lead.package}
+                      </span>
+                      <p className="text-gray-500 text-xs mt-1">
+                        {new Date(lead.submittedAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                  {(lead.meetingDone || lead.paymentReceived) && (
+                    <div className="flex gap-2 mt-2 ml-13">
+                      {lead.meetingDone && (
+                        <span className="text-xs bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded-full">Meeting Done</span>
+                      )}
+                      {lead.paymentReceived && (
+                        <span className="text-xs bg-green-500/10 text-green-400 px-2 py-0.5 rounded-full">Paid</span>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
