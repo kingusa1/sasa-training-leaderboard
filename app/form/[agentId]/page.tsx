@@ -218,47 +218,47 @@ export default function ClientFormPage() {
       <div className="relative z-10">
         {/* Hero Header */}
         <div className="relative overflow-hidden">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 pt-8 sm:pt-12 pb-6">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 pt-4 sm:pt-12 pb-3 sm:pb-6">
             {/* Logo + Badge */}
             <div className="text-center lux-card" style={{ animationDelay: '0.1s' }}>
-              <div className="inline-block mb-6">
+              <div className="inline-block mb-3 sm:mb-6">
                 <Image
                   src="/images/logo/sasa-logo-color.png"
                   alt="SASA Worldwide"
                   width={180}
                   height={60}
-                  className="brightness-0 invert opacity-90"
+                  className="brightness-0 invert opacity-90 w-[120px] sm:w-[180px] h-auto"
                   priority
                 />
               </div>
 
-              <h1 className="text-3xl sm:text-5xl font-bold tracking-tight mb-4">
+              <h1 className="text-2xl sm:text-5xl font-bold tracking-tight mb-2 sm:mb-4">
                 <span className="lux-text-gradient">Sales Training</span>
                 <br />
                 <span className="text-white">&amp; Certification</span>
               </h1>
 
-              <p className="text-white/50 max-w-lg mx-auto text-sm sm:text-base leading-relaxed mb-5">
+              <p className="text-white/50 max-w-lg mx-auto text-xs sm:text-base leading-relaxed mb-3 sm:mb-5">
                 Master the art of selling with SASA&apos;s proven 4-Foundation System.
                 Join 200+ certified graduates accelerating their sales careers.
               </p>
 
               {/* Stars */}
-              <div className="flex justify-center mb-6">
+              <div className="flex justify-center mb-3 sm:mb-6">
                 <Stars />
               </div>
 
               {/* Consultant Badge */}
-              <div className="inline-flex items-center gap-3 lux-glass rounded-full px-5 py-2.5">
+              <div className="inline-flex items-center gap-2 sm:gap-3 lux-glass rounded-full px-3 sm:px-5 py-2 sm:py-2.5">
                 <div className="relative">
-                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#004686] to-[#14758A] flex items-center justify-center text-white font-bold text-sm">
+                  <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-[#004686] to-[#14758A] flex items-center justify-center text-white font-bold text-xs sm:text-sm">
                     {agent?.fullName?.charAt(0) || 'S'}
                   </div>
-                  <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-400 rounded-full border-2 border-[#002E59]" />
+                  <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 sm:w-3.5 sm:h-3.5 bg-green-400 rounded-full border-2 border-[#002E59]" />
                 </div>
                 <div className="text-left">
                   <p className="text-white/40 text-[10px] uppercase tracking-widest">Your Consultant</p>
-                  <p className="text-white font-semibold text-sm">{agent?.fullName}</p>
+                  <p className="text-white font-semibold text-xs sm:text-sm">{agent?.fullName}</p>
                 </div>
               </div>
             </div>
@@ -266,15 +266,15 @@ export default function ClientFormPage() {
         </div>
 
         {/* Packages Section */}
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 pb-4">
-          <div className="flex items-center gap-3 mb-5">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 pb-2 sm:pb-4 lux-card" style={{ animationDelay: '0.2s' }}>
+          <div className="flex items-center gap-3 mb-3 sm:mb-5">
             <div className="h-px flex-1 bg-gradient-to-r from-transparent to-white/10" />
             <h2 className="text-white/40 text-xs uppercase tracking-[0.2em] font-medium">Choose Your Program</h2>
             <div className="h-px flex-1 bg-gradient-to-l from-transparent to-white/10" />
           </div>
 
-          <div className="space-y-4">
-            {PACKAGES.map((p, index) => {
+          <div className="space-y-3 sm:space-y-4">
+            {PACKAGES.map((p) => {
               const isSelected = selectedPackage === p.id;
               const isPopular = p.id === 'full-immersion';
               const isExpanded = expandedPackage === p.id || isSelected;
@@ -282,8 +282,6 @@ export default function ClientFormPage() {
               return (
                 <div
                   key={p.id}
-                  className="lux-card"
-                  style={{ animationDelay: `${0.2 + index * 0.1}s` }}
                 >
                   <button
                     onClick={() => {
@@ -378,9 +376,9 @@ export default function ClientFormPage() {
         </div>
 
         {/* Contact Form */}
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6">
-          <div className="lux-glass-white rounded-3xl p-6 sm:p-8 shadow-2xl shadow-black/20 lux-card" style={{ animationDelay: '0.5s' }}>
-            <div className="flex items-center gap-3 mb-7">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-3 sm:py-6">
+          <div className="lux-glass-white rounded-3xl p-5 sm:p-8 shadow-2xl shadow-black/20 lux-card" style={{ animationDelay: '0.3s' }}>
+            <div className="flex items-center gap-3 mb-5 sm:mb-7">
               <div className="w-10 h-10 rounded-xl bg-[#002E59] flex items-center justify-center">
                 <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -642,8 +640,8 @@ export default function ClientFormPage() {
         </div>
 
         {/* Trust Badges */}
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-10 lux-card" style={{ animationDelay: '0.7s' }}>
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-10 lux-card" style={{ animationDelay: '0.5s' }}>
             {[
               { icon: (
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
@@ -667,7 +665,7 @@ export default function ClientFormPage() {
         </div>
 
         {/* Footer */}
-        <div className="text-center pb-10">
+        <div className="text-center pb-6 sm:pb-10">
           <p className="text-white/20 text-xs">{COMPANY.name}</p>
           <p className="text-white/20 text-xs mt-1">
             <a href={COMPANY.website} target="_blank" rel="noopener noreferrer" className="text-white/30 hover:text-white/60 transition-colors">
