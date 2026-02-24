@@ -16,12 +16,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const pathname = usePathname();
   const [agent, setAgent] = useState<AgentInfo | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [emailConnected, setEmailConnected] = useState<boolean | null>(null);
 
   useEffect(() => {
     fetch('/api/auth/me')
       .then((res) => res.json())
       .then((data) => {
         if (data.agent) setAgent(data.agent);
+      })
+      .catch(() => {});
+
+    // Check email connection status
+    fetch('/api/auth/connect-email')
+      .then((res) => res.json())
+      .then((data) => {
+        setEmailConnected(data.emailConnected || false);
       })
       .catch(() => {});
   }, []);
@@ -68,7 +77,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors relative ${
                     pathname === item.href
                       ? 'bg-gold/10 text-gold'
                       : 'text-gray-400 hover:text-white hover:bg-navy-700'
@@ -76,6 +85,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 >
                   <span className="mr-1.5">{item.icon}</span>
                   {item.label}
+                  {item.href === '/connect-email' && emailConnected === false && (
+                    <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse" />
+                  )}
+                  {item.href === '/connect-email' && emailConnected === true && (
+                    <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full" />
+                  )}
                 </Link>
               ))}
             </div>
@@ -138,6 +153,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               >
                 <span className="mr-2">{item.icon}</span>
                 {item.label}
+                {item.href === '/connect-email' && emailConnected === false && (
+                  <span className="ml-2 text-xs text-red-400">(Setup needed)</span>
+                )}
+                {item.href === '/connect-email' && emailConnected === true && (
+                  <span className="ml-2 text-xs text-green-400">(Connected)</span>
+                )}
               </Link>
             ))}
             <button
@@ -149,6 +170,23 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
         )}
       </nav>
+
+      {/* Email not connected banner */}
+      {emailConnected === false && pathname !== '/connect-email' && (
+        <div className="bg-amber-500/10 border-b border-amber-500/30">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+            <p className="text-amber-400 text-sm">
+              📧 <strong>Email not connected.</strong> Connect your SASA email to send automated emails to leads.
+            </p>
+            <Link
+              href="/connect-email"
+              className="bg-amber-500 text-navy-900 px-4 py-1.5 rounded-lg text-sm font-semibold hover:bg-amber-400 transition-colors whitespace-nowrap ml-4"
+            >
+              Connect Now
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6">{children}</main>

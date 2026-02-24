@@ -44,7 +44,8 @@ export default function SignupPage() {
         return;
       }
 
-      router.push('/dashboard');
+      // New signup -> send to connect email first
+      router.push('/connect-email');
     } catch {
       setError('Something went wrong. Please try again.');
     } finally {
