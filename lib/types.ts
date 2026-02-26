@@ -57,9 +57,14 @@ export interface Package {
   fullName: string;
   price: number;
   currency: string;
+  priceLabel?: string;
+  priceSuffix?: string;
   description: string;
   features: string[];
   enrollUrl: string | null;
+  meetingOnly?: boolean;
+  recommended?: boolean;
+  discount?: string;
 }
 
 export interface AgentLeaderboardStats {

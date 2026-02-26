@@ -65,8 +65,9 @@ export default function ClientFormPage() {
   const [error, setError] = useState('');
   const [expandedPackage, setExpandedPackage] = useState<string | null>(null);
 
-  const isEnterprise = selectedPackage === 'enterprise';
   const pkg = PACKAGES.find((p) => p.id === selectedPackage);
+  const isEnterprise = selectedPackage === 'enterprise';
+  const isMeetingOnly = pkg?.meetingOnly === true;
 
   useEffect(() => {
     if (!agentId) return;
@@ -276,8 +277,8 @@ export default function ClientFormPage() {
           <div className="space-y-3 sm:space-y-4">
             {PACKAGES.map((p) => {
               const isSelected = selectedPackage === p.id;
-              const isPopular = p.id === 'full-immersion';
               const isExpanded = expandedPackage === p.id || isSelected;
+              const isEnterpriseCard = p.id === 'enterprise';
 
               return (
                 <div
@@ -294,11 +295,20 @@ export default function ClientFormPage() {
                         : 'lux-glass hover:bg-white/[0.08]'
                     }`}
                   >
-                    {/* Popular ribbon */}
-                    {isPopular && (
+                    {/* Recommended ribbon */}
+                    {p.recommended && (
                       <div className="absolute top-0 right-0 z-10">
                         <div className="bg-gradient-to-r from-amber-500 to-amber-400 text-[#002E59] text-[10px] font-extrabold uppercase tracking-wider px-4 py-1 rounded-bl-xl rounded-tr-2xl shadow-lg">
-                          Most Popular
+                          Recommended
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Discount badge */}
+                    {p.discount && !p.recommended && (
+                      <div className="absolute top-0 right-0 z-10">
+                        <div className="bg-gradient-to-r from-red-600 to-red-500 text-white text-[10px] font-extrabold uppercase tracking-wider px-4 py-1 rounded-bl-xl rounded-tr-2xl shadow-lg">
+                          {p.discount}
                         </div>
                       </div>
                     )}
@@ -327,12 +337,20 @@ export default function ClientFormPage() {
                               <p className="text-white/30 text-[11px] sm:text-xs mt-0.5">{p.fullName}</p>
                             </div>
                             <div className="sm:text-right flex-shrink-0 mt-1 sm:mt-0">
-                              {p.price > 0 ? (
+                              {isEnterpriseCard ? (
+                                <div className="flex sm:flex-col items-baseline sm:items-end gap-2 sm:gap-0">
+                                  <p className={`font-bold text-sm sm:text-base ${isSelected ? 'text-white' : 'text-white/70'}`}>Book a Meeting</p>
+                                  <p className="text-white/30 text-[10px] uppercase tracking-wider">custom quote</p>
+                                </div>
+                              ) : p.price > 0 ? (
                                 <div className="flex sm:flex-col items-baseline sm:items-end gap-2 sm:gap-0">
                                   <p className={`font-bold text-lg sm:text-2xl ${isSelected ? 'text-white' : 'text-white/70'}`}>
                                     AED {p.price.toLocaleString()}
                                   </p>
-                                  <p className="text-white/30 text-[10px] uppercase tracking-wider">one-time</p>
+                                  <p className="text-white/30 text-[10px] uppercase tracking-wider">
+                                    {p.priceSuffix || 'one-time'}
+                                    {p.priceLabel ? ` (${p.priceLabel})` : ''}
+                                  </p>
                                 </div>
                               ) : (
                                 <div className="flex sm:flex-col items-baseline sm:items-end gap-2 sm:gap-0">
@@ -462,14 +480,14 @@ export default function ClientFormPage() {
                 </div>
               </div>
 
-              {/* Enterprise Fields */}
+              {/* Company Details - shown for Enterprise package */}
               {isEnterprise && (
                 <div className="space-y-4 p-5 bg-gradient-to-br from-[#f8f6f3] to-[#f0ede8] rounded-2xl border border-gray-100">
                   <div className="flex items-center gap-2 mb-1">
                     <svg className="w-4 h-4 text-[#004686]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                     </svg>
-                    <p className="text-sm font-bold text-[#002E59]">Enterprise Details</p>
+                    <p className="text-sm font-bold text-[#002E59]">Company Details</p>
                   </div>
                   <div>
                     <label className="block text-[#002E59] text-xs font-semibold mb-2 uppercase tracking-wider">Company Name</label>
@@ -560,13 +578,39 @@ export default function ClientFormPage() {
               </div>
             </div>
 
+            {/* Selected Package Summary */}
+            {pkg && (
+              <div className="mt-6 p-4 bg-gradient-to-r from-[#f8f9fc] to-[#f0f4f8] rounded-2xl border border-gray-100">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-[#002E59] flex items-center justify-center">
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-[#002E59] font-bold text-sm">{pkg.name}</p>
+                      <p className="text-gray-400 text-xs">{pkg.fullName}</p>
+                    </div>
+                  </div>
+                  {pkg.id !== 'enterprise' && pkg.price > 0 && (
+                    <div className="text-right">
+                      <p className="text-[#002E59] font-bold">AED {pkg.price.toLocaleString()}</p>
+                      <p className="text-gray-400 text-[10px] uppercase">{pkg.priceSuffix || 'one-time'}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Action Buttons */}
-            <div className="mt-8 space-y-3">
-              {!isEnterprise && pkg && (
+            <div className="mt-5 space-y-3">
+              {/* Enroll Now - only for non-meeting-only packages with enrollUrl */}
+              {pkg && !isMeetingOnly && pkg.enrollUrl && (
                 <button
                   onClick={handleBuyNow}
                   disabled={submitting || !isFormValid}
-                  className="w-full relative overflow-hidden bg-gradient-to-r from-[#002E59] via-[#004686] to-[#002E59] bg-[length:200%_100%] py-4 sm:py-5 rounded-2xl font-bold text-white text-base sm:text-lg hover:shadow-2xl hover:shadow-[#004686]/30 transition-all duration-500 disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.99] group"
+                  className="w-full relative overflow-hidden bg-gradient-to-r from-[#002E59] via-[#004686] to-[#002E59] bg-[length:200%_100%] py-4 sm:py-5 rounded-2xl font-bold text-white text-base sm:text-lg shadow-lg shadow-[#004686]/20 hover:shadow-2xl hover:shadow-[#004686]/30 transition-all duration-500 disabled:opacity-40 disabled:shadow-none disabled:cursor-not-allowed active:scale-[0.98] group"
                   style={{ backgroundPosition: 'left center' }}
                   onMouseEnter={(e) => (e.currentTarget.style.backgroundPosition = 'right center')}
                   onMouseLeave={(e) => (e.currentTarget.style.backgroundPosition = 'left center')}
@@ -590,47 +634,58 @@ export default function ClientFormPage() {
                 </button>
               )}
 
-              {!isEnterprise && !pkg && (
-                <button
-                  disabled
-                  className="w-full bg-gradient-to-r from-[#002E59] to-[#004686] py-4 sm:py-5 rounded-2xl font-bold text-white text-lg opacity-40 cursor-not-allowed"
-                >
-                  Select a package to continue
-                </button>
+              {/* Divider between two buttons */}
+              {pkg && !isMeetingOnly && pkg.enrollUrl && (
+                <div className="flex items-center gap-3 py-1">
+                  <div className="h-px flex-1 bg-gray-200" />
+                  <span className="text-gray-300 text-xs font-medium uppercase tracking-wider">or</span>
+                  <div className="h-px flex-1 bg-gray-200" />
+                </div>
               )}
 
-              <button
-                onClick={handleScheduleMeeting}
-                disabled={submitting || !isFormValid}
-                className={`w-full py-4 sm:py-5 rounded-2xl font-bold text-base sm:text-lg transition-all duration-500 disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.99] group ${
-                  isEnterprise
-                    ? 'relative overflow-hidden bg-gradient-to-r from-[#002E59] via-[#004686] to-[#002E59] bg-[length:200%_100%] text-white hover:shadow-2xl hover:shadow-[#004686]/30'
-                    : 'border-2 border-[#002E59]/20 text-[#002E59] hover:bg-[#002E59] hover:text-white hover:border-[#002E59] hover:shadow-lg'
-                }`}
-                style={isEnterprise ? { backgroundPosition: 'left center' } : undefined}
-                onMouseEnter={(e) => isEnterprise && (e.currentTarget.style.backgroundPosition = 'right center')}
-                onMouseLeave={(e) => isEnterprise && (e.currentTarget.style.backgroundPosition = 'left center')}
-              >
-                {submitting ? (
-                  <span className="flex items-center justify-center gap-3">
-                    <div className={`w-5 h-5 border-2 rounded-full animate-spin ${isEnterprise ? 'border-white/30 border-t-white' : 'border-[#004686]/30 border-t-[#004686]'}`} />
-                    Processing...
-                  </span>
-                ) : (
-                  <span className="flex items-center justify-center gap-2">
+              {/* No package selected placeholder */}
+              {!pkg && (
+                <div className="text-center py-4">
+                  <div className="inline-flex items-center gap-2 text-gray-300">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 11l5-5m0 0l5 5m-5-5v12" />
                     </svg>
-                    Schedule a Free Consultation
-                    <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </span>
-                )}
-              </button>
+                    <p className="text-sm font-medium">Select a package above to continue</p>
+                  </div>
+                </div>
+              )}
 
-              {!selectedPackage && (
-                <p className="text-center text-gray-300 text-sm pt-1">Select a package above to continue</p>
+              {/* Book a Meeting - primary for meeting-only, secondary for others */}
+              {pkg && (
+                <button
+                  onClick={handleScheduleMeeting}
+                  disabled={submitting || !isFormValid}
+                  className={`w-full py-4 sm:py-5 rounded-2xl font-bold text-base sm:text-lg transition-all duration-500 disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98] group ${
+                    isMeetingOnly
+                      ? 'relative overflow-hidden bg-gradient-to-r from-[#002E59] via-[#004686] to-[#002E59] bg-[length:200%_100%] text-white shadow-lg shadow-[#004686]/20 hover:shadow-2xl hover:shadow-[#004686]/30'
+                      : 'border-2 border-[#002E59]/20 text-[#002E59] hover:bg-[#002E59] hover:text-white hover:border-[#002E59] hover:shadow-lg'
+                  }`}
+                  style={isMeetingOnly ? { backgroundPosition: 'left center' } : undefined}
+                  onMouseEnter={(e) => isMeetingOnly && (e.currentTarget.style.backgroundPosition = 'right center')}
+                  onMouseLeave={(e) => isMeetingOnly && (e.currentTarget.style.backgroundPosition = 'left center')}
+                >
+                  {submitting ? (
+                    <span className="flex items-center justify-center gap-3">
+                      <div className={`w-5 h-5 border-2 rounded-full animate-spin ${isMeetingOnly ? 'border-white/30 border-t-white' : 'border-[#004686]/30 border-t-[#004686]'}`} />
+                      Processing...
+                    </span>
+                  ) : (
+                    <span className="flex items-center justify-center gap-2">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      {isMeetingOnly ? 'Book a Free Consultation' : 'Schedule a Free Consultation'}
+                      <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </span>
+                  )}
+                </button>
               )}
             </div>
           </div>

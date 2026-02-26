@@ -163,6 +163,11 @@ export default function MyLeadsPage() {
           {filteredLeads.map((lead) => {
             const pkg = PACKAGES.find((p) => p.id === lead.package || p.name === lead.package);
             const clientName = `${lead.firstName} ${lead.lastName}`.trim();
+            const isEnterprisePkg = pkg?.id === 'enterprise';
+            const leadDate = new Date(lead.timestamp);
+            const formattedDate = leadDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+            const formattedTime = leadDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
             return (
               <div
                 key={lead.rowIndex}
@@ -172,24 +177,75 @@ export default function MyLeadsPage() {
                 <div className="flex items-start justify-between mb-3">
                   <div>
                     <h3 className="text-navy-700 font-semibold">{clientName}</h3>
-                    <p className="text-gray-500 text-sm">{lead.clientEmail}</p>
-                    <p className="text-gray-400 text-xs">{lead.clientPhone}</p>
-                    {lead.companyName && (
-                      <p className="text-gray-400 text-xs mt-0.5">🏢 {lead.companyName}</p>
-                    )}
+                    <div className="flex items-center gap-2 mt-1">
+                      <a href={`mailto:${lead.clientEmail}`} className="text-blue-500 text-sm hover:underline">{lead.clientEmail}</a>
+                    </div>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <a href={`tel:${lead.clientPhone}`} className="text-blue-500 text-sm hover:underline">{lead.clientPhone}</a>
+                    </div>
                   </div>
                   <div className="text-right">
                     <span className="text-xs bg-navy-50 text-navy-500 px-2 py-1 rounded-full font-medium">
                       {pkg?.name || lead.package}
                     </span>
-                    {pkg && pkg.price > 0 && (
-                      <p className="text-navy-500 text-sm font-semibold mt-1">AED {pkg.price.toLocaleString()}</p>
+                    {pkg && !isEnterprisePkg && pkg.price > 0 && (
+                      <p className="text-navy-500 text-sm font-semibold mt-1">AED {pkg.price.toLocaleString()}{pkg.priceSuffix || ''}</p>
                     )}
-                    {pkg && pkg.price === 0 && (
+                    {isEnterprisePkg && (
                       <p className="text-navy-500 text-sm font-semibold mt-1">Custom</p>
                     )}
                   </div>
                 </div>
+
+                {/* Lead Details Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-3 p-3 bg-gray-50 rounded-lg text-xs">
+                  <div>
+                    <span className="text-gray-400 uppercase tracking-wider text-[10px] font-semibold">Date</span>
+                    <p className="text-gray-700 font-medium">{formattedDate}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-400 uppercase tracking-wider text-[10px] font-semibold">Time</span>
+                    <p className="text-gray-700 font-medium">{formattedTime}</p>
+                  </div>
+                  {lead.preferredContact && (
+                    <div>
+                      <span className="text-gray-400 uppercase tracking-wider text-[10px] font-semibold">Contact Via</span>
+                      <p className="text-gray-700 font-medium capitalize">{lead.preferredContact}</p>
+                    </div>
+                  )}
+                  {lead.bestTime && (
+                    <div>
+                      <span className="text-gray-400 uppercase tracking-wider text-[10px] font-semibold">Best Time</span>
+                      <p className="text-gray-700 font-medium capitalize">{lead.bestTime}</p>
+                    </div>
+                  )}
+                  {lead.companyName && (
+                    <div>
+                      <span className="text-gray-400 uppercase tracking-wider text-[10px] font-semibold">Company</span>
+                      <p className="text-gray-700 font-medium">{lead.companyName}</p>
+                    </div>
+                  )}
+                  {lead.teamSize && (
+                    <div>
+                      <span className="text-gray-400 uppercase tracking-wider text-[10px] font-semibold">Team Size</span>
+                      <p className="text-gray-700 font-medium">{lead.teamSize}</p>
+                    </div>
+                  )}
+                  {lead.leadSource && (
+                    <div>
+                      <span className="text-gray-400 uppercase tracking-wider text-[10px] font-semibold">Source</span>
+                      <p className="text-gray-700 font-medium">{lead.leadSource}</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Notes */}
+                {lead.notes && (
+                  <div className="mb-3 p-3 bg-amber-50 border border-amber-100 rounded-lg">
+                    <p className="text-amber-800 text-[10px] uppercase tracking-wider font-semibold mb-1">Client Notes</p>
+                    <p className="text-gray-700 text-sm leading-relaxed">{lead.notes}</p>
+                  </div>
+                )}
 
                 {/* Status Badge */}
                 <div className="mb-3">
@@ -206,12 +262,9 @@ export default function MyLeadsPage() {
                       New Lead
                     </span>
                   )}
-                  <span className="text-gray-400 text-xs ml-2">
-                    {new Date(lead.timestamp).toLocaleDateString()}
-                  </span>
-                  {lead.preferredContact && (
-                    <span className="text-gray-400 text-xs ml-2">
-                      Contact via: {lead.preferredContact}
+                  {pkg?.meetingOnly && (
+                    <span className="text-xs bg-purple-50 text-purple-600 px-3 py-1 rounded-full font-medium ml-2">
+                      Meeting Required
                     </span>
                   )}
                 </div>

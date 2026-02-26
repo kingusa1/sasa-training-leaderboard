@@ -19,6 +19,9 @@ async function getTransporter(agentEmail: string) {
   });
 }
 
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://sasa-training-leaderboard.vercel.app';
+const LOGO_URL = `${APP_URL}/images/logo/sasa-logo-color.png`;
+
 // Shared email wrapper with SASA branding
 function emailWrapper(headerTitle: string, headerSubtitle: string, bodyContent: string) {
   return `
@@ -36,15 +39,8 @@ function emailWrapper(headerTitle: string, headerSubtitle: string, bodyContent: 
             <td style="background: linear-gradient(135deg, #001829 0%, #002E59 40%, #004686 100%); padding: 40px 30px; border-radius: 16px 16px 0 0; text-align: center;">
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                 <tr>
-                  <td align="center" style="padding-bottom: 16px;">
-                    <table role="presentation" cellpadding="0" cellspacing="0">
-                      <tr>
-                        <td style="background: rgba(255,255,255,0.15); border-radius: 8px; padding: 8px 20px;">
-                          <span style="color: #ffffff; font-size: 18px; font-weight: 700; letter-spacing: 2px;">SASA</span>
-                          <span style="color: rgba(255,255,255,0.6); font-size: 18px; font-weight: 300; letter-spacing: 2px;"> WORLDWIDE</span>
-                        </td>
-                      </tr>
-                    </table>
+                  <td align="center" style="padding-bottom: 20px;">
+                    <img src="${LOGO_URL}" alt="SASA Worldwide" width="160" height="auto" style="display: block; margin: 0 auto; max-width: 160px; height: auto; filter: brightness(0) invert(1); opacity: 0.95;" />
                   </td>
                 </tr>
                 <tr>
@@ -104,6 +100,7 @@ function emailWrapper(headerTitle: string, headerSubtitle: string, bodyContent: 
 
 // Build package details HTML block
 function packageDetailsBlock(pkg: typeof PACKAGES[0]) {
+  const isEnterprise = pkg.id === 'enterprise';
   const featuresHtml = pkg.features.map((f) => `
     <tr>
       <td style="padding: 6px 0; vertical-align: top; width: 24px;">
@@ -112,6 +109,17 @@ function packageDetailsBlock(pkg: typeof PACKAGES[0]) {
       <td style="padding: 6px 0 6px 10px; color: #444; font-size: 14px; line-height: 1.4;">${f}</td>
     </tr>
   `).join('');
+
+  // Price display: Enterprise = no price, meeting-only with price = show price/month, otherwise one-time
+  let priceHtml = '';
+  if (isEnterprise) {
+    priceHtml = `<p style="color: #004686; font-size: 16px; font-weight: 700; margin: 8px 0 0 0;">Custom &mdash; <span style="font-size: 12px; font-weight: 400; color: #999;">a consultant will discuss pricing with you</span></p>`;
+  } else if (pkg.price > 0) {
+    const suffix = pkg.priceSuffix || 'one-time';
+    priceHtml = `<p style="color: #004686; font-size: 22px; font-weight: 700; margin: 8px 0 0 0;">AED ${pkg.price.toLocaleString()} <span style="font-size: 12px; font-weight: 400; color: #999;">${suffix}</span></p>`;
+  } else {
+    priceHtml = `<p style="color: #004686; font-size: 18px; font-weight: 700; margin: 8px 0 0 0;">Custom Pricing <span style="font-size: 12px; font-weight: 400; color: #999;">tailored for your team</span></p>`;
+  }
 
   return `
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #f8f9fc, #f0f4f8); border-radius: 12px; border: 1px solid #e8edf2; margin: 20px 0;">
@@ -123,10 +131,7 @@ function packageDetailsBlock(pkg: typeof PACKAGES[0]) {
                 <p style="color: #004686; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin: 0 0 6px 0;">Selected Package</p>
                 <h3 style="color: #002E59; font-size: 20px; font-weight: 700; margin: 0 0 4px 0;">${pkg.name}</h3>
                 <p style="color: #888; font-size: 13px; margin: 0 0 4px 0;">${pkg.fullName}</p>
-                ${pkg.price > 0
-                  ? `<p style="color: #004686; font-size: 22px; font-weight: 700; margin: 8px 0 0 0;">AED ${pkg.price.toLocaleString()} <span style="font-size: 12px; font-weight: 400; color: #999;">one-time payment</span></p>`
-                  : `<p style="color: #004686; font-size: 18px; font-weight: 700; margin: 8px 0 0 0;">Custom Pricing <span style="font-size: 12px; font-weight: 400; color: #999;">tailored for your team</span></p>`
-                }
+                ${priceHtml}
               </td>
             </tr>
           </table>
@@ -159,13 +164,18 @@ export async function sendLeadConfirmationToClient(
     return;
   }
 
+  const isMeetingOnly = pkg?.meetingOnly === true;
+
   const bodyContent = `
     <!-- Greeting -->
-    <h2 style="color: #002E59; font-size: 22px; margin: 0 0 6px 0;">Hello ${clientName}!</h2>
-    <p style="color: #888; font-size: 14px; margin: 0 0 20px 0;">Thank you for your interest in SASA Sales Training</p>
+    <h2 style="color: #002E59; font-size: 24px; margin: 0 0 6px 0;">Hello ${clientName},</h2>
+    <p style="color: #888; font-size: 14px; margin: 0 0 24px 0;">Thank you for choosing SASA Worldwide</p>
 
     <p style="color: #444; font-size: 15px; line-height: 1.7; margin: 0 0 5px 0;">
-      We&rsquo;re excited that you&rsquo;re taking the first step toward transforming your sales career. Your dedicated training consultant <strong style="color: #002E59;">${agentName}</strong> will be in touch shortly.
+      We&rsquo;re thrilled that you&rsquo;re investing in your sales success. Whether you&rsquo;re looking to sharpen your skills or transform your entire team&rsquo;s performance, you&rsquo;re in the right place.
+    </p>
+    <p style="color: #444; font-size: 15px; line-height: 1.7; margin: 0 0 5px 0;">
+      Your dedicated consultant <strong style="color: #002E59;">${agentName}</strong> will be reaching out to you shortly to discuss the next steps and answer any questions you may have.
     </p>
 
     <!-- Package Details -->
@@ -217,8 +227,8 @@ export async function sendLeadConfirmationToClient(
                 <div style="width: 28px; height: 28px; background: #002E59; border-radius: 50%; text-align: center; line-height: 28px; color: #fff; font-size: 13px; font-weight: 700;">1</div>
               </td>
               <td style="padding: 10px 0 10px 12px; vertical-align: middle;">
-                <p style="color: #333; font-size: 14px; margin: 0; font-weight: 600;">Consultation Call</p>
-                <p style="color: #888; font-size: 13px; margin: 2px 0 0 0;">Your consultant will reach out to schedule a meeting</p>
+                <p style="color: #333; font-size: 14px; margin: 0; font-weight: 600;">Personal Consultation</p>
+                <p style="color: #888; font-size: 13px; margin: 2px 0 0 0;">Your consultant will reach out to schedule a call at your convenience</p>
               </td>
             </tr>
             <tr>
@@ -226,8 +236,8 @@ export async function sendLeadConfirmationToClient(
                 <div style="width: 28px; height: 28px; background: #004686; border-radius: 50%; text-align: center; line-height: 28px; color: #fff; font-size: 13px; font-weight: 700;">2</div>
               </td>
               <td style="padding: 10px 0 10px 12px; vertical-align: middle;">
-                <p style="color: #333; font-size: 14px; margin: 0; font-weight: 600;">Personalized Walkthrough</p>
-                <p style="color: #888; font-size: 13px; margin: 2px 0 0 0;">Discuss the program, your goals, and get all your questions answered</p>
+                <p style="color: #333; font-size: 14px; margin: 0; font-weight: 600;">Tailored Walkthrough</p>
+                <p style="color: #888; font-size: 13px; margin: 2px 0 0 0;">We&rsquo;ll discuss your goals, walk through the programme, and create a plan that fits your needs</p>
               </td>
             </tr>
             <tr>
@@ -235,8 +245,8 @@ export async function sendLeadConfirmationToClient(
                 <div style="width: 28px; height: 28px; background: #14758A; border-radius: 50%; text-align: center; line-height: 28px; color: #fff; font-size: 13px; font-weight: 700;">3</div>
               </td>
               <td style="padding: 10px 0 10px 12px; vertical-align: middle;">
-                <p style="color: #333; font-size: 14px; margin: 0; font-weight: 600;">Start Your Training</p>
-                <p style="color: #888; font-size: 13px; margin: 2px 0 0 0;">Upon enrollment, you&rsquo;ll receive instant access to all course materials</p>
+                <p style="color: #333; font-size: 14px; margin: 0; font-weight: 600;">${isMeetingOnly ? 'Begin Your Partnership' : 'Start Your Training'}</p>
+                <p style="color: #888; font-size: 13px; margin: 2px 0 0 0;">${isMeetingOnly ? 'Once everything is aligned, we&rsquo;ll kick off your partnership and start delivering results' : 'Upon enrollment, you&rsquo;ll receive instant access to all course materials'}</p>
               </td>
             </tr>
           </table>
@@ -254,7 +264,7 @@ export async function sendLeadConfirmationToClient(
             </a>
           ` : `
             <a href="${COMPANY.contactUrl}" style="display: inline-block; background: linear-gradient(135deg, #002E59, #004686); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 12px; font-weight: 700; font-size: 16px; letter-spacing: 0.3px;">
-              Schedule a Consultation &rarr;
+              Get in Touch &rarr;
             </a>
           `}
           <p style="color: #bbb; font-size: 12px; margin: 12px 0 0 0;">Or reply to this email to contact your consultant directly</p>
@@ -285,7 +295,9 @@ export async function sendLeadNotificationToAgent(
 ): Promise<void> {
   const pkg = PACKAGES.find((p) => p.id === packageId || p.name === packageId);
   const packageName = pkg?.name || packageId;
-  const priceText = pkg && pkg.price > 0 ? `AED ${pkg.price.toLocaleString()}` : 'Custom';
+  const isEnterprisePkg = pkg?.id === 'enterprise';
+  const priceText = isEnterprisePkg ? 'Custom' : (pkg && pkg.price > 0 ? `AED ${pkg.price.toLocaleString()}${pkg.priceSuffix || ''}` : 'Custom');
+  const actionType = pkg?.meetingOnly ? 'Meeting Required' : 'Direct Enrollment';
 
   const transporter = await getTransporter(agentEmail);
   if (!transporter) {
@@ -303,7 +315,7 @@ export async function sendLeadNotificationToAgent(
               <td style="vertical-align: middle; padding-right: 12px; font-size: 24px;">&#127881;</td>
               <td style="vertical-align: middle;">
                 <p style="color: #2e7d32; font-size: 15px; font-weight: 700; margin: 0;">New Lead Captured!</p>
-                <p style="color: #558b2f; font-size: 13px; margin: 2px 0 0 0;">A new prospect is interested in your training program</p>
+                <p style="color: #558b2f; font-size: 13px; margin: 2px 0 0 0;">A new prospect is interested in <strong>${packageName}</strong></p>
               </td>
             </tr>
           </table>
@@ -338,10 +350,16 @@ export async function sendLeadNotificationToAgent(
               </td>
             </tr>
             <tr>
-              <td style="padding: 8px 0;">
+              <td style="padding: 8px 0; border-bottom: 1px solid #f0f0f0;">
                 <span style="color: #999; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Package Interest</span><br>
                 <span style="color: #002E59; font-size: 15px; font-weight: 600;">${packageName}</span>
-                <span style="color: #004686; font-size: 14px; font-weight: 600; margin-left: 8px;">${priceText}</span>
+                ${!isEnterprisePkg ? `<span style="color: #004686; font-size: 14px; font-weight: 600; margin-left: 8px;">${priceText}</span>` : ''}
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0;">
+                <span style="color: #999; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Action Required</span><br>
+                <span style="color: ${pkg?.meetingOnly ? '#e65100' : '#2e7d32'}; font-size: 14px; font-weight: 700;">${actionType}</span>
               </td>
             </tr>
           </table>
@@ -368,7 +386,7 @@ export async function sendLeadNotificationToAgent(
     </table>
 
     <p style="color: #999; font-size: 13px; text-align: center; margin: 20px 0 0 0;">
-      Log in to your <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://sasa-training-leaderboard.vercel.app'}/dashboard" style="color: #004686; text-decoration: none; font-weight: 600;">dashboard</a> to manage all your leads.
+      Log in to your <a href="${APP_URL}/dashboard" style="color: #004686; text-decoration: none; font-weight: 600;">dashboard</a> to manage all your leads.
     </p>
   `;
 
